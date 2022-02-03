@@ -1,0 +1,37 @@
+[Defines]
+  DEC_SPECIFICATION = 0x00010005
+  PACKAGE_NAME      = Lior
+  PACKAGE_GUID      = c9df5526-0164-4313-89d4-375731bb0448
+  PACKAGE_VERSION   = 0.1
+
+[Includes]
+  Include #Package Include directory
+
+[LibraryClasses]
+  ## Library class name is same to library header file name
+  OneClassLib|Include/Library/OneClassLib.h
+
+[Guids]
+
+#GuidCName = {xxxxxxxx,xxxx,xxxx,{xx,xx,xx,xx,xx,xx,xx,xx}},
+[Ppis]
+
+#PpiGuidCName = {xxxxxxxx,xxxx,xxxx,{xx,xx,xx,xx,xx,xx,xx,xx}},
+[Protocols]
+
+#ProtocolGuidCName = {xxxxxxxx,xxxx,xxxx,{xx,xx,xx,xx,xx,xx,xx,xx}},
+[PcdsFeatureFlag] #FeatureFlag PCD is BOOLEAN type, the value is TRUR or FALSE.
+
+#PcdTokenSpaceCGuidName.PcdName|TRUE|BOOLEAN|TokenNumber
+#PcdTokenSpaceCGuidName.PcdName|FALSE|BOOLEAN|TokenNumber
+[PcdsFixedAtBuild]
+
+#PcdTokenSpaceCGuidName.PcdName|DefaultValue|DataType|TokenNumber
+[PcdsPatchableInModule]
+
+#PcdTokenSpaceCGuidName.PcdName|DefaultValue|DataType|TokenNumber
+[PcdsDynamic]
+
+#PcdTokenSpaceCGuidName.PcdName|DefaultValue|DataType|TokenNumber
+[PcdsDynamicEx]
+  #PcdTokenSpaceCGuidName.PcdName|DefaultValue|DataType|TokenNumber

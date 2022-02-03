@@ -1,0 +1,29 @@
+[Defines]
+  INF_VERSION = 0x00010005
+#   BASE_NAME   = LiorDriver
+  BASE_NAME   = LiorApp
+  FILE_GUID   = 539b1c67-0fd1-307d-8437-601f66d0bf1a
+#   MODULE_TYPE = UEFI_DRIVER
+  MODULE_TYPE = UEFI_APPLICATION
+  ENTRY_POINT = main
+
+#
+# The following information is for reference only and not required by the
+# build tools.
+#
+# VALID_ARCHITECTURES = IA32 X64 IPF EBC
+#
+##
+[Sources.X64]
+  HelloWorld.c
+##
+[Packages]
+  MdePkg/MdePkg.dec
+  LiorPkg/lior.dec
+##
+[LibraryClasses]
+  UefiBootServicesTableLib
+#   UefiDriverEntryPoint
+  UefiApplicationEntryPoint
+  UefiLib
+  DebugLib
