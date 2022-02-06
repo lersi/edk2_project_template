@@ -10,21 +10,14 @@ function(_add_package PKG_NAME BUILD_ARGS)
     # list all files in our pkg
     file(GLOB_RECURSE PKG_SOURCE_FILES
         LIST_DIRECTORIES false
-        RELATIVE ${PACKAGE_DIR}
         ${PACKAGE_DIR}/${PKG_NAME}/**
     )
 
-    # # create list of destination files
-    list(TRANSFORM PKG_SOURCE_FILES PREPEND ${EDK2_SOURCE}/ OUTPUT_VARIABLE OUT_FILES)
-    # # create list of all source files
-    list(TRANSFORM PKG_SOURCE_FILES PREPEND ${PACKAGE_DIR}/)
-
     add_custom_target(${PKG_NAME}
-        ${CMAKE_COMMAND} -E copy_directory ${PACKAGE_DIR}/${PKG_NAME} ${PKG_NAME}
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_SCRIPT} ${VS_VERSION} ${BUILD_ARGS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_SCRIPT} ${EDK2_SOURCE} ${VS_VERSION} ${CMAKE_CURRENT_BINARY_DIR} ${PACKAGE_DIR} ${BUILD_ARGS} 
         SOURCES ${PKG_SOURCE_FILES}
         BYPRODUCTS ${OUT_FILES}
-        WORKING_DIRECTORY ${EDK2_SOURCE}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
     )
 endfunction()
 

@@ -5,8 +5,8 @@ project(edk2_template)
 # set(LOCAL_EDK2 <full path to your local edk2 repo>)
 include(cmake_files/include_edk2.cmake)
 
-set(EDK2_SOURCE ${edk2_template_SOURCE_DIR}/build/_deps/edk2-src)
-set(PACKAGE_DIR ${edk2_template_SOURCE_DIR}/uefi_apps)
+set(EDK2_SOURCE ${EDK2_SOURCE_DIR})
+set(PACKAGE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/uefi_apps)
 
 # platform specific modules
 if(WIN32)

@@ -16,3 +16,5 @@ FetchContent_Declare(
 )
 
 FetchContent_Populate(edk2)
+
+set(EDK2_SOURCE_DIR ${edk2_SOURCE_DIR})
