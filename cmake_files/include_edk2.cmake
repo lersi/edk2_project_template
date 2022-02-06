@@ -11,7 +11,7 @@ endif()
 
 FetchContent_Declare(
     edk2
-    GIT_REPOSITORY ${LOCAL_EDK2}
+    GIT_REPOSITORY ${EDK_REPO}
     GIT_TAG        ${EDK2_TAG}
 )
 
