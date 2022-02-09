@@ -1,30 +1,33 @@
+cmake_minimum_required(VERSION 3.12)
 if(NOT DEFINED VS_VERSION)
     set(VS_VERSION VS2019)
 endif()
 
 set(TOOL_CHAIN ${VS_VERSION})
-set(BUILD_SCRIPT build.bat)
+set(BUILD_SCRIPT _build.bat)
 
 
 function(_add_package PKG_NAME BUILD_ARGS)
     # list all files in our pkg
     file(GLOB_RECURSE PKG_SOURCE_FILES
         LIST_DIRECTORIES false
-        RELATIVE ${PACKAGE_DIR}
         ${PACKAGE_DIR}/${PKG_NAME}/**
     )
 
-    # # create list of destination files
-    list(TRANSFORM PKG_SOURCE_FILES PREPEND ${EDK2_SOURCE}/ OUTPUT_VARIABLE OUT_FILES)
-    # # create list of all source files
-    list(TRANSFORM PKG_SOURCE_FILES PREPEND ${PACKAGE_DIR}/)
+    # fix path in all arguments so it matches windows style
+    string(JOIN " " BUILD_SCRIPT_ARGS ${CMAKE_CURRENT_BINARY_DIR} ${EDK2_SOURCE} ${VS_VERSION}  ${PACKAGE_DIR} ${BUILD_ARGS})
+    string(REPLACE "/" "\\" BUILD_SCRIPT_ARGS ${BUILD_SCRIPT_ARGS})
+
+    # seperate the string back to its arguments
+    separate_arguments(BUILD_SCRIPT_ARGS WINDOWS_COMMAND ${BUILD_SCRIPT_ARGS})  
+    message("script args: ${BUILD_SCRIPT_ARGS}")
 
     add_custom_target(${PKG_NAME}
-        ${CMAKE_COMMAND} -E copy_directory ${PACKAGE_DIR}/${PKG_NAME} ${PKG_NAME}
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_SCRIPT} ${VS_VERSION} ${BUILD_ARGS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_SCRIPT} ${BUILD_SCRIPT_ARGS} 
         SOURCES ${PKG_SOURCE_FILES}
         BYPRODUCTS ${OUT_FILES}
-        WORKING_DIRECTORY ${EDK2_SOURCE}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
+        USES_TERMINAL
     )
 endfunction()
 
