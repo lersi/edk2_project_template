@@ -12,6 +12,8 @@ if not ^" EQU !PYTHON_COMMAND:~1! set PYTHON_COMMAND="%PYTHON_COMMAND%"
 
 set WORKSPACE=%1
 set PACKAGES_PATH=%2;%4
+set CONF_PATH=%WORKSPACE%\Conf
+if not exist %CONF_PATH%\ mkdir %CONF_PATH%
 call %2\edksetup.bat %3
 
 if not exist %EDK_TOOLS_BIN%\ (
