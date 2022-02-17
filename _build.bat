@@ -8,7 +8,7 @@
 @REM rest)  <params to build>
 
 @REM fix wierd issue with path
-if not ^" EQU !PYTHON_COMMAND:~1! set PYTHON_COMMAND="%PYTHON_COMMAND%"
+if not ^" EQU ^%PYTHON_COMMAND:~0,1% set PYTHON_COMMAND="%PYTHON_COMMAND%"
 
 set WORKSPACE=%1
 set PACKAGES_PATH=%2;%4
