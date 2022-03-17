@@ -3,7 +3,7 @@
 #   BASE_NAME   = LiorDriver
   BASE_NAME   = LiorApp
   FILE_GUID   = 539b1c67-0fd1-307d-8437-601f66d0bf1a
-#   MODULE_TYPE = UEFI_DRIVER
+#   MODULE_TYPE = UEFI_DRIVER # use this for compiling a driver
   MODULE_TYPE = UEFI_APPLICATION
   ENTRY_POINT = main
 
@@ -14,14 +14,14 @@
 # VALID_ARCHITECTURES = IA32 X64 IPF EBC
 #
 ##
-[Sources.X64]
+[Sources.X64] # list here source files for the X64 architecture
   HelloWorld.c
 ##
-[Packages]
+[Packages] # list here the packeges that your module depends on
   MdePkg/MdePkg.dec
   LiorPkg/lior.dec
 ##
-[LibraryClasses]
+[LibraryClasses] # list here the library classes that you want to use
   UefiBootServicesTableLib
 #   UefiDriverEntryPoint
   UefiApplicationEntryPoint

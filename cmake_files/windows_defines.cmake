@@ -1,12 +1,21 @@
 cmake_minimum_required(VERSION 3.12)
+
+# the user can configure which version of visual studio he has
 if(NOT DEFINED VS_VERSION)
-    set(VS_VERSION VS2019)
+    set(VS_VERSION VS2019) 
 endif()
 
+# this parameter tels the build script which toolchain to use
 set(TOOL_CHAIN ${VS_VERSION})
+# this parameter tels which build script to use
 set(BUILD_SCRIPT _build.bat)
 
-
+##
+# description: this function creates a Cmake target for a package.
+# 
+# arg1: PKG_NAME  the name of the package to create a target for
+# arg2: BUILD_ARGS  list of argument to pass to edk's build system
+##
 function(_add_package PKG_NAME BUILD_ARGS)
     # list all files in our pkg
     file(GLOB_RECURSE PKG_SOURCE_FILES
@@ -25,12 +34,20 @@ function(_add_package PKG_NAME BUILD_ARGS)
     add_custom_target(${PKG_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_SCRIPT} ${BUILD_SCRIPT_ARGS} 
         SOURCES ${PKG_SOURCE_FILES}
-        BYPRODUCTS ${OUT_FILES}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
         USES_TERMINAL
     )
 endfunction()
 
+##
+# description: this function creates a Cmake target for a package.
+# 
+# arg1: PKG_NAME  the name of the package to create a target for
+# arg2-n: BUILD_ARGS  list of argument to pass to edk's build system
+#
+# this is a warper function that deals with sending lists to a function
+# as a bunch of variables instead of a list
+##
 function(add_package PKG_NAME BUILD_ARGS)
     set(BUILD_LIST "")
     list(APPEND BUILD_LIST ${BUILD_ARGS})
