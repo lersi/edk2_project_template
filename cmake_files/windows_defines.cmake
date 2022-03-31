@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
-if(NOT DEFINED VS_VERSION)
-    set(VS_VERSION VS2019)
-endif()
+set(VS_VERSION VS2019 CACHE STRING "the version of visual studio to us i.e VS2019")
+
 
 set(TOOL_CHAIN ${VS_VERSION})
 set(BUILD_SCRIPT _build.bat)

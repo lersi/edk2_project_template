@@ -48,8 +48,8 @@
   ## This library instance should be provide by chipset.
   TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
 
-  MemoryAllocationLib|MdePkg\Library\UefiMemoryAllocationLib\UefiMemoryAllocationLib.inf
-  RegisterFilterLib|MdePkg\Library\RegisterFilterLibNull\RegisterFilterLibNull.inf
+  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
+  RegisterFilterLib|MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf
 
 
 ##PCDs sections are not specified.
@@ -61,3 +61,4 @@
   #
   # Module INF file path are specified from package directory.
   LiorPkg/Lior/lior.inf
+
