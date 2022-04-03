@@ -5,7 +5,7 @@ include(FetchContent)
 if(NOT DEFINED LOCAL_EDK2)
     set(EDK_REPO https://github.com/tianocore/edk2.git CACHE)
 else()
-    set(EDK_REPO ${LOCAL_EDK2} CACHE INTERNAL) # note that this could be also a remote repo
+    set(EDK_REPO ${LOCAL_EDK2} CACHE INTERNAL "") # note that this could be also a remote repo
 endif()
 
 # lets the user configure it's own edk2 tag to work with
