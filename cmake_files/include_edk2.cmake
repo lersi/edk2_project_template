@@ -3,7 +3,7 @@ include(FetchContent)
 
 # checks if we got a repo from user, if not get the repo from github
 if(NOT DEFINED LOCAL_EDK2)
-    set(EDK_REPO https://github.com/tianocore/edk2.git CACHE)
+    set(EDK_REPO https://github.com/tianocore/edk2.git CACHE STRING "")
 else()
     set(EDK_REPO ${LOCAL_EDK2} CACHE INTERNAL "") # note that this could be also a remote repo
 endif()
