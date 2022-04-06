@@ -5,9 +5,40 @@ Making build for UEFI easy
 <br/>
 <br/>
 
-## list of content
+## List of content
 
-TBD
+- [EDK2 Project Template](#edk2-project-template)
+  - [List of content](#list-of-content)
+  - [Introduction](#introduction)
+    - [Key Objectives](#key-objectives)
+    - [Brief Overwiew](#brief-overwiew)
+    - [Installing Dependencies](#installing-dependencies)
+  - [Usage](#usage)
+    - [Invoking Cmake via vscode](#invoking-cmake-via-vscode)
+    - [Using Commandline](#using-commandline)
+    - [Customizing via Cmake variables](#customizing-via-cmake-variables)
+  - [Brief Description of edk2 build system](#brief-description-of-edk2-build-system)
+  - [Creating your own Package](#creating-your-own-package)
+    - [Intitialise the package](#intitialise-the-package)
+      - [Create the Package folder](#create-the-package-folder)
+      - [Create the Cmake file for the Package](#create-the-cmake-file-for-the-package)
+        - [Configure the File](#configure-the-file)
+    - [Create files for EDK2 build system](#create-files-for-edk2-build-system)
+      - [use the automatic generation (not yet avaible)](#use-the-automatic-generation-not-yet-avaible)
+      - [Create Platform file (.dsc)](#create-platform-file-dsc)
+        - [\[Defines\] Section](#defines-section)
+      - [Create Module file (.inf)](#create-module-file-inf)
+        - [\[Definess\] Section](#definess-section)
+  - [More Info on EDK2](#more-info-on-edk2)
+    - [Lists of all tianocore documentation (more or less)](#lists-of-all-tianocore-documentation-more-or-less)
+    - [Guides](#guides)
+    - [Training](#training)
+    - [Compilation Environment](#compilation-environment)
+    - [Build Files specifications](#build-files-specifications)
+    - [Security](#security)
+    - [etc](#etc)
+    - [Lot of info about computers](#lot-of-info-about-computers)
+  - [COPYRIGHT](#copyright)
 
 ## Introduction
 
@@ -23,10 +54,10 @@ TBD
 
 ### Installing Dependencies
 
-This project does not has any dependencies by itself (except for Cmake and EDK2 existance obviously)
+This project does not has any dependencies by itself (except for Cmake and EDK2's existance obviously)
 
 You will need to intall the dependencies of EDK2.  
-these links may be useful:  
+these links may be useful for installing these dipendencies:  
 
 * [mac](https://github.com/tianocore/tianocore.github.io/wiki/Xcode) 
 * [windows](https://github.com/tianocore/tianocore.github.io/wiki/Windows-systems#compile-tools) 
@@ -51,11 +82,18 @@ For customizing the project you can add variables in the file `.vscode/settings.
 
 ### Using Commandline
 
+Configure the project:
+
 ```sh
 cmake -S <path to this repo> -B <path to build dir>
 ```
 
-TBD  
+Build the package:
+
+```sh
+cmake --build <path to build dir> --target <package name>
+```
+
 For customizing the project you can add variable via the flag `-D`:
 
 ```sh
@@ -64,7 +102,7 @@ cmake -D<variable name>=<value>
 
 ### Customizing via Cmake variables
 
-editing the following variables  
+editing the following variables will change the build system behavior.  
 
 | Variable              | Type              |  Description                           |
 | --------------------- | ----------------- | -------------------------------------- |  
@@ -94,7 +132,7 @@ Package is spcified by a `.dsc` file, which delares basic info like:
 * it's own modules
 * dependencies
 
-Module is specified by a `.inf` file, which declares more specific info, like:
+Module is specified by a `.inf` file, which declares more specific info like:
 
 * main function name (if have one)
 * it's source files
@@ -115,20 +153,20 @@ For more explanation, you may use the following links:
 create new folder at `uefi_apps/<your package name>Pkg`
 and make sure that the folder name format is `UpperCamelCase`.  
 
-this is your "new" source root directory.
-add files and directories to this folder as the edk2 standard instructs.
+this is your "new" source root directory,
+add files and directories to this folder as the edk2 specification instructs.
 
 #### Create the Cmake file for the Package
 
 In the directory `uefi_apps` you need to create file named
 `<your package name>_pkg.cmake`, in `snake_case`.  
-Then add at the bottom of the file `CMakeLists.txt`,
-The following line:  
+Then add the following line at the bottom of the file `CMakeLists.txt`:
+  
 ```cmake
 include(uefi_apps/<your package name>_pkg.cmake)
 ```
 
-##### configure the file
+##### Configure the File
 
 1. Declare on the package name, which must be equal to the name of the package's folder.  
     i.e `set(PACKAGE_NAME <your package folder name>)`
@@ -177,11 +215,68 @@ work in progress
 
 #### Create Platform file (.dsc)
 
-The dsc file uses `ini` syntax.
+The dsc file uses `ini` like syntax.  
+
+##### \[Defines\] Section
+
+For more info, you may read the [dsc specification](https://edk2-docs.gitbook.io/edk-ii-dsc-specification).  
 
 #### Create Module file (.inf)
 
+The inf file uses `ini` like syntax.  
 
+##### \[Definess\] Section
+
+For more info, you may read the [inf specification](https://edk2-docs.gitbook.io/edk-ii-inf-specification).  
+
+## More Info on EDK2
+
+### Lists of all tianocore documentation (more or less)
+
+https://github.com/tianocore-docs/tianocore-docs.github.io 
+https://github.com/tianocore/tianocore.github.io/wiki/EDK-II-Documents 
+
+### Guides
+
+https://edk2-docs.gitbook.io/edk-ii-module-writer-s-guide/  
+https://edk2-docs.gitbook.io/edk-ii-uefi-driver-writer-s-guide/  
+
+### Training
+
+https://github.com/tianocore-training/Tianocore_Training_Contents/wiki  
+https://github.com/tianocore/tianocore.github.io/wiki/Training  
+https://github.com/tianocore-docs/Training  
+
+### Compilation Environment
+
+windows https://github.com/tianocore/tianocore.github.io/wiki/Windows-systems#compile-tools  
+macos   https://github.com/tianocore/tianocore.github.io/wiki/Xcode  
+linux   https://github.com/tianocore/tianocore.github.io/wiki/Using-EDK-II-with-Native-GCC  
+https://edk2-docs.gitbook.io/edk-ii-basetools-user-guides/build  
+https://edk2-docs.gitbook.io/edk-ii-build-specification/4_edk_ii_build_process_overview/41_edk_ii_build_system  
+https://github.com/tianocore/tianocore.github.io/wiki/Getting-Started-with-EDK-II  
+
+### Build Files specifications
+
+https://edk2-docs.gitbook.io/edk-ii-fdf-specification/  
+https://edk2-docs.gitbook.io/edk-ii-dsc-specification  
+https://edk2-docs.gitbook.io/edk-ii-dec-specification/  
+https://edk2-docs.gitbook.io/edk-ii-inf-specification  
+
+### Security
+
+https://edk2-docs.gitbook.io/a-tour-beyond-bios-memory-protection-in-uefi-bios/  
+https://edk2-docs.gitbook.io/security-advisory/  
+https://edk2-docs.gitbook.io/understanding-the-uefi-secure-boot-chain/  
+
+### etc
+
+https://github.com/tianocore-docs  
+https://edk2-docs.gitbook.io/edk-ii-c-coding-standards-specification/  
+
+### Lot of info about computers
+
+https://opensecuritytraining.info/IntroBIOS.html
 
 ## COPYRIGHT
 Copyright (c) 2022 Lior Shalmay

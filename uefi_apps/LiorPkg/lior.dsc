@@ -6,7 +6,6 @@
   OUTPUT_DIRECTORY        = LiorPkg
   SUPPORTED_ARCHITECTURES = X64 # IA32|IPF|X64|EBC
   BUILD_TARGETS           = DEBUG # DEBUG|RELEASE
-  SKUID_IDENTIFIER        = DEFAULT
 
 [LibraryClasses]
   ## More library instances need to be added if more library classes are used
