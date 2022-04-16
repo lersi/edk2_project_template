@@ -3,40 +3,37 @@
 Making build for UEFI easy
   
 <br/>
-<br/>
 
 ## List of content
 
-- [EDK2 Project Template](#edk2-project-template)
-  - [List of content](#list-of-content)
-  - [Introduction](#introduction)
-    - [Key Objectives](#key-objectives)
-    - [Brief Overwiew](#brief-overwiew)
-    - [Installing Dependencies](#installing-dependencies)
-  - [Usage](#usage)
-    - [Invoking Cmake via vscode](#invoking-cmake-via-vscode)
-    - [Using Commandline](#using-commandline)
-    - [Customizing via Cmake variables](#customizing-via-cmake-variables)
-  - [Brief Description of edk2 build system](#brief-description-of-edk2-build-system)
-  - [Creating your own Package](#creating-your-own-package)
-    - [Intitialise the package](#intitialise-the-package)
-      - [Create the Package folder](#create-the-package-folder)
-      - [Create the Cmake file for the Package](#create-the-cmake-file-for-the-package)
-        - [Configure the File](#configure-the-file)
-    - [Create files for EDK2 build system](#create-files-for-edk2-build-system)
-      - [use the automatic generation (not yet avaible)](#use-the-automatic-generation-not-yet-avaible)
-      - [Create Platform file (.dsc)](#create-platform-file-dsc)
-      - [Create Module file (.inf)](#create-module-file-inf)
-  - [More Info on EDK2](#more-info-on-edk2)
-    - [Lists of all tianocore documentation (more or less)](#lists-of-all-tianocore-documentation-more-or-less)
-    - [Guides](#guides)
-    - [Training](#training)
-    - [Compilation Environment](#compilation-environment)
-    - [Build Files specifications](#build-files-specifications)
-    - [Security](#security)
-    - [etc](#etc)
-    - [Lot of info about computers](#lot-of-info-about-computers)
-  - [COPYRIGHT](#copyright)
+- [Introduction](#introduction)
+  - [Key Objectives](#key-objectives)
+  - [Brief Overwiew](#brief-overwiew)
+  - [Installing Dependencies](#installing-dependencies)
+- [Usage](#usage)
+  - [Invoking Cmake via vscode](#invoking-cmake-via-vscode)
+  - [Using Commandline](#using-commandline)
+  - [Customizing via Cmake variables](#customizing-via-cmake-variables)
+- [Brief Description of edk2 build system](#brief-description-of-edk2-build-system)
+- [Creating your own Package](#creating-your-own-package)
+  - [Intitialise the package](#intitialise-the-package)
+    - [Create the Package folder](#create-the-package-folder)
+    - [Create the Cmake file for the Package](#create-the-cmake-file-for-the-package)
+      - [Configure the File](#configure-the-file)
+  - [Create files for EDK2 build system](#create-files-for-edk2-build-system)
+    - [use the automatic generation (not yet avaible)](#use-the-automatic-generation-not-yet-avaible)
+    - [Create Platform file (.dsc)](#create-platform-file-dsc)
+    - [Create Module file (.inf)](#create-module-file-inf)
+- [More Info on EDK2](#more-info-on-edk2)
+  - [Lists of all tianocore documentation (more or less)](#lists-of-all-tianocore-documentation-more-or-less)
+  - [Guides](#guides)
+  - [Training](#training)
+  - [Compilation Environment](#compilation-environment)
+  - [Build Files specifications](#build-files-specifications)
+  - [Security](#security)
+  - [etc](#etc)
+  - [Lot of info about computers](#lot-of-info-about-computers)
+- [COPYRIGHT](#copyright)
 
 ## Introduction
 
@@ -59,7 +56,7 @@ And it is devided into 3 seperate components:
 This project does not has any dependencies by itself (except for Cmake and EDK2's existance obviously)
 
 You will need to intall the dependencies of EDK2.  
-these links may be useful for installing these dipendencies:  
+these links may be useful for installing these dependencies:  
 
 - [mac](https://github.com/tianocore/tianocore.github.io/wiki/Xcode) 
 - [windows](https://github.com/tianocore/tianocore.github.io/wiki/Windows-systems#compile-tools) 
@@ -77,7 +74,6 @@ For customizing the project you can add variables in the file `.vscode/settings.
 {
     "cmake.configureEnvironment": {
         "<cmake variable>": "<your special data>",
-        ...
     }
 }
 ```
@@ -96,10 +92,10 @@ Build the package:
 cmake --build <path to build dir> --target <package name>
 ```
 
-For customizing the project you can add variable via the flag `-D`:
+For customizing the project you can add variable via the flag `-D` when configuring the project:
 
 ```sh
-cmake -D<variable name>=<value>
+cmake -D<variable name>=<value> <rest of cmake configuration flags>
 ```
 
 ### Customizing via Cmake variables
@@ -113,7 +109,7 @@ editing the following variables will change the build system behavior.
 | VS_VERSION            | string            | **WINDOWS_ONLY** <br/> version of visual studio to use. Format: `VS<year>` |
 
 
-for deeper look
+you may want to look at the source of the variables for deeper look.
 | Variable                           | definition/use Location             |
 | ---------------------------------- | ----------------------------------- |
 | LOCAL_EDK2                         | `cmake_files/include_edk2.cmake`    |
@@ -126,7 +122,7 @@ for deeper look
 
 The EDK project is composed of packages.  
 Each package is independent or is dependent on other packages.  
-Package is composed of several modules. Each module can depend on another modules.
+Package is composed of several modules. Each module can depend on some other modules.
 
 Package is spcified by a `.dsc` file, which delares basic info like:  
 
@@ -148,14 +144,13 @@ For more explanation, you may use the following links:
 
 ## Creating your own Package
 
-### Intitialise the package
+### Initialize the package
 
 #### Create the Package folder
 
-create new folder at `uefi_apps/<your package name>Pkg`
+Create new folder at `uefi_apps/<your package name>Pkg`
 and make sure that the folder name format is `UpperCamelCase`.  
-
-this is your "new" source root directory,
+This is your "new" source root directory,
 add files and directories to this folder as the edk2 specification instructs.
 
 #### Create the Cmake file for the Package
@@ -211,10 +206,6 @@ add_package(${PACKAGE_NAME} ${BUILD_ARGS})
 
 ### Create files for EDK2 build system
 
-#### use the automatic generation (not yet avaible)
-
-work in progress
-
 #### Create Platform file (.dsc)
 
 The dsc file uses `ini` like syntax.  
@@ -227,13 +218,13 @@ The dsc file uses `ini` like syntax.
 >
 > | Variable name           | Type                | Description |
 > | ----------------------- | ------------------- | ----------- |
-> | DSC_SPECIFICATION       | 32 bit hex or float | the version of the specification, does not need to be changed, unless you use a specific feature that apears in newer specification. Format: `<major>.<minor>` or Upper 16 bits = Major, Lower 16 bit = Minor. |
+> | DSC_SPECIFICATION       | 32 bit hex or float | the version of the specification. It does not need to be changed, unless you use a specific feature that appears in a newer specification. Format: `<major>.<minor>` or Upper 16 bits = Major, Lower 16 bit = Minor. |
 > | PLATFORM_NAME           | String              | a name for your platform, must be unique. |
 > | PLATFORM_GUID           | uuid                | an uuid for your platform, must be unique. |
-> | PLATFORM_VERSION        | 32 bit hex or float | the version of your ackage. |
+> | PLATFORM_VERSION        | 32 bit hex or float | the version of your package. |
 > | OUTPUT_DIRECTORY        | relative path       | a path for placing your build artifacts, it's relative to `WORKSPACE` dir. |
 > | SUPPORTED_ARCHITECTURES | list                | a list that contains all the architectures that the package supports. Format: `<arch>|<another arch>`. |
-> | BUILD_TARGETS           | list                | list of your build targets. |
+> | BUILD_TARGETS           | list                | list of your build targets. avaible options are `DEBUG` `RELEASE` `NOOPT`. To create more options you need to edit the file `tools_def.txt` in edk's build tools conf directory. |
 
 > #### \[LibraryClasses\] Section
 >  
