@@ -26,9 +26,7 @@ Making build for UEFI easy
     - [Create files for EDK2 build system](#create-files-for-edk2-build-system)
       - [use the automatic generation (not yet avaible)](#use-the-automatic-generation-not-yet-avaible)
       - [Create Platform file (.dsc)](#create-platform-file-dsc)
-        - [\[Defines\] Section](#defines-section)
       - [Create Module file (.inf)](#create-module-file-inf)
-        - [\[Definess\] Section](#definess-section)
   - [More Info on EDK2](#more-info-on-edk2)
     - [Lists of all tianocore documentation (more or less)](#lists-of-all-tianocore-documentation-more-or-less)
     - [Guides](#guides)
@@ -44,13 +42,17 @@ Making build for UEFI easy
 
 ### Key Objectives
 
-* Quick and easy start of UEFI development for newbies  
-* Easy out of EDK tree development
-* Zero hussle with EDK build setup
+- Quick and easy start of UEFI development for newbies  
+- Easy out of EDK tree development
+- Zero hussle with EDK build setup
 
 ### Brief Overwiew
 
-TBD
+This project is a cmake warper to edk's build system.
+And it is devided into 3 seperate components:  
+1. middleware scripts between cmake and edk's build command, located under `build_scripts`.
+2. cmake files that implements the core of this build system, located under `cmake_files`.
+3. packages for edk2, located under `uefi_apps`.
 
 ### Installing Dependencies
 
@@ -59,10 +61,10 @@ This project does not has any dependencies by itself (except for Cmake and EDK2'
 You will need to intall the dependencies of EDK2.  
 these links may be useful for installing these dipendencies:  
 
-* [mac](https://github.com/tianocore/tianocore.github.io/wiki/Xcode) 
-* [windows](https://github.com/tianocore/tianocore.github.io/wiki/Windows-systems#compile-tools) 
-* [linux](https://github.com/tianocore/tianocore.github.io/wiki/Using-EDK-II-with-Native-GCC) 
-* [intro page](https://github.com/tianocore/tianocore.github.io/wiki/Getting-Started-with-EDK-II) 
+- [mac](https://github.com/tianocore/tianocore.github.io/wiki/Xcode) 
+- [windows](https://github.com/tianocore/tianocore.github.io/wiki/Windows-systems#compile-tools) 
+- [linux](https://github.com/tianocore/tianocore.github.io/wiki/Using-EDK-II-with-Native-GCC) 
+- [intro page](https://github.com/tianocore/tianocore.github.io/wiki/Getting-Started-with-EDK-II) 
 
 ## Usage
 
@@ -128,21 +130,21 @@ Package is composed of several modules. Each module can depend on another module
 
 Package is spcified by a `.dsc` file, which delares basic info like:  
 
-* supported architectures
-* it's own modules
-* dependencies
+- supported architectures
+- it's own modules
+- dependencies
 
 Module is specified by a `.inf` file, which declares more specific info like:
 
-* main function name (if have one)
-* it's source files
-* dependencies
+- main function name (if have one)
+- it's source files
+- dependencies
 
 For more explanation, you may use the following links:  
 
-* [setup](https://github.com/tianocore/tianocore.github.io/wiki/Getting-Started-with-EDK-II)
-* [build system](https://edk2-docs.gitbook.io/edk-ii-build-specification/4_edk_ii_build_process_overview/41_edk_ii_build_system)
-* [guid](https://edk2-docs.gitbook.io/edk-ii-module-writer-s-guide/2_an_edk_ii_package/21_introduction)
+- [setup](https://github.com/tianocore/tianocore.github.io/wiki/Getting-Started-with-EDK-II)
+- [build system](https://edk2-docs.gitbook.io/edk-ii-build-specification/4_edk_ii_build_process_overview/41_edk_ii_build_system)
+- [guide](https://edk2-docs.gitbook.io/edk-ii-module-writer-s-guide/2_an_edk_ii_package/21_introduction)
 
 ## Creating your own Package
 
@@ -217,7 +219,37 @@ work in progress
 
 The dsc file uses `ini` like syntax.  
 
-##### \[Defines\] Section
+> #### \[Defines\] Section
+>  
+> This section defines importent information for edk2's build system.  
+> The format for entries in this section is: `<name> = <vlaue>`.  
+> You mast define these variables:  
+>
+> | Variable name           | Type                | Description |
+> | ----------------------- | ------------------- | ----------- |
+> | DSC_SPECIFICATION       | 32 bit hex or float | the version of the specification, does not need to be changed, unless you use a specific feature that apears in newer specification. Format: `<major>.<minor>` or Upper 16 bits = Major, Lower 16 bit = Minor. |
+> | PLATFORM_NAME           | String              | a name for your platform, must be unique. |
+> | PLATFORM_GUID           | uuid                | an uuid for your platform, must be unique. |
+> | PLATFORM_VERSION        | 32 bit hex or float | the version of your ackage. |
+> | OUTPUT_DIRECTORY        | relative path       | a path for placing your build artifacts, it's relative to `WORKSPACE` dir. |
+> | SUPPORTED_ARCHITECTURES | list                | a list that contains all the architectures that the package supports. Format: `<arch>|<another arch>`. |
+> | BUILD_TARGETS           | list                | list of your build targets. |
+
+> #### \[LibraryClasses\] Section
+>  
+> In this section you declare on the libraries your module is going to use.
+> Use the names declared here in `inf`'s file `[LibraryClasses]` section.  
+> Format: `<libname>|<path to lib module's inf file>[|<path to lib module's inf file>...]`  
+> **Note** you also need to declare on library classes needed by the modules you depend on.
+
+> #### \[Components\] Section
+>
+> Here you define the modules and libraries that will be compiled as part of the package.
+> Format: path to the `inf` file of the module: `<package name>/path/to/module.inf`.  each path is seperated by a new line.
+
+> ### **Note**
+>
+> There are more section, these sctions are the basic sections that must be defined in order to compile the package.
 
 For more info, you may read the [dsc specification](https://edk2-docs.gitbook.io/edk-ii-dsc-specification).  
 
@@ -225,7 +257,40 @@ For more info, you may read the [dsc specification](https://edk2-docs.gitbook.io
 
 The inf file uses `ini` like syntax.  
 
-##### \[Definess\] Section
+> #### \[Definess\] Section
+>
+> This section defines importent information for edk2's build system.  
+> The format for entries in this section is: `<name> = <vlaue>`.  
+> You mast define these variables:  
+>
+> | Variable name | Type                | Description |
+> | ------------- | ------------------- | ----------- |
+> | INF_VERSION   | 32 bit hex or float | the version of the specification, does not need to be changed, unless you use a specific feature that apears in newer specification. Format: `<major>.<minor>` or Upper 16 bits = Major, Lower 16 bit = Minor. |
+> | BASE_NAME     | string              | an unique name for the module |
+> | FILE_GUID     | uuid                | an uuid for the module |
+> | MODULE_TYPE   | string              | the module's type i.e application or driver. For all module types, please see [module types table](https://edk2-docs.gitbook.io/edk-ii-inf-specification/appendix_f_module_types). |
+> | ENTRY_POINT   | string              | the name of the entry point function (only applies to applications and drivers) |
+
+> #### \[LibraryClasses\] Section
+>
+> In this section you declare on the libraies that your module is depended on. use the library names you have defined in the `inf` file.  
+> each name sould be seperated by a new line.  
+
+> #### \[Sources\] Section
+>
+> This section is used to declare on the source files of the module, both header files and source files must be declared here (and any other file that is part of the source).
+> This section contains the source file paths relative to `inf`'s file location.
+> Each path is seperated by a new line.
+
+> #### \[Packages\] Section
+>
+> This section is used to list all edk2's decleration files that are used by this module.
+> Sadly, I am not going to explain what decleraion files are, you only need to know that 
+> **every** *executable* module need to declare on the file: `MdePkg/MdePkg.dec`.
+
+> ### **Note**
+>
+> There are more section, these sctions are the basic sections that must be defined in order to compile the module.
 
 For more info, you may read the [inf specification](https://edk2-docs.gitbook.io/edk-ii-inf-specification).  
 

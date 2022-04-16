@@ -19,7 +19,7 @@
 ##
 [Packages] # list here the packeges that your module depends on
   MdePkg/MdePkg.dec
-  LiorPkg/lior.dec
+
 ##
 [LibraryClasses] # list here the library classes that you want to use
   UefiBootServicesTableLib
