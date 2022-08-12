@@ -335,4 +335,7 @@ https://edk2-docs.gitbook.io/edk-ii-c-coding-standards-specification/
 https://opensecuritytraining.info/IntroBIOS.html
 
 ## COPYRIGHT
-Copyright (c) 2022 Lior Shalmay
+Copyright (c) 2022 Lior Shalmay. All rights reserved.
+
+## LICENSE
+This project is distributed both under Propriatary License and GPL-2
