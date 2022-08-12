@@ -1,11 +1,19 @@
 cmake_minimum_required(VERSION 3.12)
-set(VS_VERSION VS2019 CACHE STRING "the version of visual studio to us i.e VS2019")
 
+# the user can configure which version of visual studio he has
+set(VS_VERSION VS2019 CHACE STRING "visual studio version i.e VS2019") 
 
+# this parameter tels the build script which toolchain to use
 set(TOOL_CHAIN ${VS_VERSION})
+# this parameter tels which build script to use
 set(BUILD_SCRIPT _build.bat)
 
-
+##
+# description: this function creates a Cmake target for a package.
+# 
+# arg1: PKG_NAME  the name of the package to create a target for
+# arg2: BUILD_ARGS  list of argument to pass to edk's build system
+##
 function(_add_package PKG_NAME BUILD_ARGS)
     # list all files in our pkg
     file(GLOB_RECURSE PKG_SOURCE_FILES
@@ -24,15 +32,7 @@ function(_add_package PKG_NAME BUILD_ARGS)
     add_custom_target(${PKG_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_SCRIPT} ${BUILD_SCRIPT_ARGS} 
         SOURCES ${PKG_SOURCE_FILES}
-        BYPRODUCTS ${OUT_FILES}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
         USES_TERMINAL
     )
-endfunction()
-
-function(add_package PKG_NAME BUILD_ARGS)
-    set(BUILD_LIST "")
-    list(APPEND BUILD_LIST ${BUILD_ARGS})
-    list(APPEND BUILD_LIST ${ARGN})
-    _add_package(${PKG_NAME} "${BUILD_LIST}")
 endfunction()

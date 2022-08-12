@@ -3,13 +3,9 @@
   PLATFORM_GUID           = aaddf6e3-7ed7-323c-a77e-ee6498f52ecb
   PLATFORM_VERSION        = 0.1
   DSC_SPECIFICATION       = 0x00010005
-#   OUTPUT_DIRECTORY        = Build/Lior
   OUTPUT_DIRECTORY        = LiorPkg
   SUPPORTED_ARCHITECTURES = X64 # IA32|IPF|X64|EBC
   BUILD_TARGETS           = DEBUG # DEBUG|RELEASE
-  SKUID_IDENTIFIER        = DEFAULT
-
-# [SkuIds] 0|DEFAULT #The entry: 0|DEFAULT is reserved and required.
 
 [LibraryClasses]
   ## More library instances need to be added if more library classes are used
@@ -48,8 +44,9 @@
   ## This library instance should be provide by chipset.
   TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
 
-  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
-  RegisterFilterLib|MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf
+  ## more stuff that prevented the package from compiling
+  MemoryAllocationLib|MdePkg\Library\UefiMemoryAllocationLib\UefiMemoryAllocationLib.inf
+  RegisterFilterLib|MdePkg\Library\RegisterFilterLibNull\RegisterFilterLibNull.inf
 
 
 ##PCDs sections are not specified.
@@ -61,4 +58,3 @@
   #
   # Module INF file path are specified from package directory.
   LiorPkg/Lior/lior.inf
-

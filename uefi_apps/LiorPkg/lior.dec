@@ -1,3 +1,5 @@
+# this file is optional and not neccesary
+
 [Defines]
   DEC_SPECIFICATION = 0x00010005
   PACKAGE_NAME      = Lior
