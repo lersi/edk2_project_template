@@ -39,12 +39,14 @@ list(APPEND BUILD_ENV_VARIABLES TARGET_TOOLS)
 set(EDK_TOOLS_PATH ${EDK2_SOURCE}/BaseTools)
 set(WORKSPACE ${CMAKE_CURRENT_BINARY_DIR})
 if(NOT DEFINED PYTHON_COMMAND)
+    # searching for python command location
     execute_process(
         COMMAND zsh -c "which python3"
         OUTPUT_VARIABLE PYTHON_COMMAND
     )
     string(STRIP "${PYTHON_COMMAND}" PYTHON_COMMAND)
     if("${PYTHON_COMMAND}" STREQUAL "")
+    # python location was not found
         string(CONCAT error_msg
             "could not find the location of the python command, "
             "please use `-DPYTHON_COMMAND=<path to your python interperter>`\n"
@@ -52,6 +54,7 @@ if(NOT DEFINED PYTHON_COMMAND)
         )
         message(SEND_ERROR ${error_msg})
     else()
+    # show python loocation to user, and save to cache
         message(NOTICE "found python command at: ${PYTHON_COMMAND}")
         set(PYTHON_COMMAND ${PYTHON_COMMAND} CACHE FILEPATH "path to python interperter" FORCE)
     endif()
@@ -65,6 +68,7 @@ list(APPEND BUILD_ENV_VARIABLES WORKSPACE PYTHON_COMMAND EDK_TOOLS_PATH)
 ##
 set(CONF_PATH ${CMAKE_BINARY_DIR}/conf CACHE PATH "where to save configuration for EDK build tools")
 list(APPEND BUILD_ENV_VARIABLES CONF_PATH)
+
 if((NOT EXISTS ${CONF_PATH}) OR (NOT EXISTS ${CONF_PATH}/tools_def.txt))
     make_directory(${CONF_PATH})
     set(ENV{RECONFIG} "TRUE")
@@ -81,6 +85,7 @@ if((NOT EXISTS ${CONF_PATH}) OR (NOT EXISTS ${CONF_PATH}/tools_def.txt))
         COMMAND_ERROR_IS_FATAL ANY
     )
 endif()
+
 ##
 # make sure base tools is compiled
 ##
@@ -120,7 +125,7 @@ if(NOT DEFINED EDK_BIN_WRAPPERS)
     endif()
 endif()
 
-function(_add_package PKG_NAME BUILD_ARGS)
+function(internal_add_package PKG_NAME BUILD_ARGS)
     # list all files in our pkg
     file(GLOB_RECURSE PKG_SOURCE_FILES
         LIST_DIRECTORIES false
@@ -161,5 +166,5 @@ function(add_package PKG_NAME BUILD_ARGS)
     set(BUILD_LIST "")
     list(APPEND BUILD_LIST ${BUILD_ARGS})
     list(APPEND BUILD_LIST ${ARGN})
-    _add_package(${PKG_NAME} "${BUILD_LIST}")
+    internal_add_package(${PKG_NAME} "${BUILD_LIST}")
 endfunction()

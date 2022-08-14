@@ -6,8 +6,6 @@ project(edk2_template LANGUAGES C ASM)
 # imports edk2 project
 include(cmake_files/include_edk2.cmake)
 
-# translates a name from `include_edk2.cmake` to somthing more readable
-set(EDK2_SOURCE ${EDK2_SOURCE_DIR})
 # specifiece the dir that contains sources for EDK2
 set(PACKAGE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/uefi_apps)
 set(PACKAGES_PATH ${PACKAGE_DIR} ${EDK2_SOURCE})

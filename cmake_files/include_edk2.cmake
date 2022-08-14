@@ -22,3 +22,7 @@ FetchContent_Declare(
 )
 FetchContent_Populate(EDK2)
 
+
+# sets the source directory into a more redable name
+set(EDK2_SOURCE ${edk2_SOURCE_DIR}) # cmake will make the repo name lowercase
+

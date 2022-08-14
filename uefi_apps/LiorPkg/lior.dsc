@@ -45,8 +45,8 @@
   TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
 
   ## more stuff that prevented the package from compiling
-  MemoryAllocationLib|MdePkg\Library\UefiMemoryAllocationLib\UefiMemoryAllocationLib.inf
-  RegisterFilterLib|MdePkg\Library\RegisterFilterLibNull\RegisterFilterLibNull.inf
+  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
+  RegisterFilterLib|MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf
 
 
 ##PCDs sections are not specified.

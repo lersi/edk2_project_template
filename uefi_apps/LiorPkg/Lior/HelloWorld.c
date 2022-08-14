@@ -42,6 +42,8 @@ lior_main(
     * This method should work for all supported CPU architectures.
     */
     Buffer = (VOID *)(UINTN)PhysicalBuffer;
+    *(UINT64 *)Buffer = 0x4c657273;
+    ((UINT8 *)Buffer)[4] = 105;
     /**
     * Free the allocated buffer
     */
