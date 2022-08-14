@@ -5,7 +5,7 @@
   FILE_GUID   = 539b1c67-0fd1-307d-8437-601f66d0bf1a
 #   MODULE_TYPE = UEFI_DRIVER # use this for compiling a driver
   MODULE_TYPE = UEFI_APPLICATION
-  ENTRY_POINT = main
+  ENTRY_POINT = lior_main
 
 #
 # The following information is for reference only and not required by the
