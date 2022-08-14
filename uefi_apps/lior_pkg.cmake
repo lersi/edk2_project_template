@@ -7,7 +7,7 @@ set(BUILD_ARGS
     --arch=X64 # architecture to compile to
     --platform=LiorPkg/lior.dsc # the platform to compile
     # --module=LiorPkg/Lior/lior.inf # the specific module to compile
-    -n 7 # amount of threads
+    -n ${CORE_COUNT} # amount of threads
     --tagname=${TOOL_CHAIN} # tool chain to use
 )
 # this would create a target for the package
