@@ -50,7 +50,7 @@ jobs:
         git submodule update
 
     - name: Install dependencies
-      run: apt install build-essential uuid-dev iasl git  nasm  python-is-python3
+      run: sudo apt install build-essential uuid-dev iasl git  nasm  python-is-python3
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
