@@ -37,7 +37,7 @@ jobs:
     - name: Clone EDK2
       if: steps.cache-edk2.outputs.cache-hit != 'true'
       run: |
-        git clone ${{env.}} ${{env.EDK2_PATH}}
+        git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
         cd ${{env.EDK2_PATH}}
         git submodule init --update
       
