@@ -39,7 +39,7 @@ jobs:
       run: |
         git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
         cd ${{env.EDK2_PATH}}
-        git submodule init --update
+        git submodule update --init
       
     
     - name: Fetch EDK2
