@@ -17,7 +17,11 @@ if(WIN32)
     # windows platform (also 64 bit)
     include(cmake_files/windows_defines.cmake)
 elseif(APPLE)
+    # mac platform 
     include(cmake_files/mac_defines.cmake)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    # linux platform
+    include(cmake_files/linux_defines.cmake)
 else()
     message("${CMAKE_SYSTEM_NAME}")
     message(FATAL_ERROR "current platform is not supported")

@@ -78,6 +78,10 @@ For customizing the project you can add variables in the file `.vscode/settings.
 }
 ```
 
+> ### Note
+> cmake may fail to configure or build when invoked from vs code.
+> if cmake fails, try to invoke it again from the commandline.
+
 ### Using Commandline
 
 Configure the project:

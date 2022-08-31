@@ -9,7 +9,7 @@ else()
 endif()
 
 # lets the user configure it's own edk2 tag to work with
-set(EDK2_TAG edk2-stable202111 CACHE STRING "the tag or commit of edk2 repo to use") # default tag 
+set(EDK2_TAG edk2-stable202205 CACHE STRING "the tag or commit of edk2 repo to use") # default tag 
 
 
 # fetches the repo
