@@ -18,6 +18,8 @@ jobs:
   import_edk2:
     name: clone edk2 repo
     steps:
+      - uses: actions/checkout@v3
+      
       - name: EDK2 cache
         id: cache-edk2
         uses: actions/cache@v3
