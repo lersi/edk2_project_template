@@ -39,7 +39,7 @@ jobs:
     - name: Fetch EDK2
       if: steps.cache-edk2.outputs.cache-hit == 'true'
       run: |
-        cd ${{env.EDK2_REPO}}
+        cd ${{env.EDK2_PATH}}
         git fetch
         git submodule update
 
@@ -77,7 +77,7 @@ jobs:
     - name: Fetch EDK2
       if: steps.cache-edk2.outputs.cache-hit == 'true'
       run: |
-        cd ${{env.EDK2_REPO}}
+        cd ${{env.EDK2_PATH}}
         git fetch
         git submodule update
       
