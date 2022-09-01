@@ -135,7 +135,10 @@ jobs:
     defaults:
       run:
         shell: cmd
-    
+
+    env:
+      EDK2_PATH: ${{github.workspace}}/edk2
+      
     steps:
     - uses: actions/checkout@v3
 
