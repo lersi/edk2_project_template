@@ -161,7 +161,9 @@ jobs:
         git submodule update
       
     - name: copy pip requirements
-      run: cp ${{env.EDK2_PATH}}/pip-requirements.txt ./requirements.txt
+      run: |
+        cd ${{env.EDK2_PATH}}
+        cp ./pip-requirements.txt ${{github.workspace}}/requirements.txt
 
     - name: add pip
       uses: actions/setup-python@v4
