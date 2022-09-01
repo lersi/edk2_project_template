@@ -136,9 +136,6 @@ jobs:
       run:
         shell: cmd
     
-    env:
-      EDK2_PATH: ${{github.workspace}}/edk2
-    
     steps:
     - uses: actions/checkout@v3
 
@@ -173,8 +170,7 @@ jobs:
         cache: 'pip' # caching pip dependencies
 
     - name: Configure CMake
-      # sets LOCAL_EDK2 to cached repo path, to make configuration faster
-      run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}}
+      run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
       run: cmake --build ${{github.workspace}}\build --target ${{env.BUILD_TARGET}}
