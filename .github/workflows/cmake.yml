@@ -25,7 +25,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: import EDK2
-      uses: ./.github/template/prepare_edk2.yml
+      uses: ./.github/templates/prepare_edk2.yml
       with:
         edk2_repo: ${{env.EDK2_REPO}}
         edk2_path: ${{env.EDK2_PATH}}
@@ -50,7 +50,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: import EDK2
-      uses: ./.github/template/prepare_edk2.yml
+      uses: ./.github/templates/prepare_edk2.yml
       with:
         edk2_repo: ${{env.EDK2_REPO}}
         edk2_path: ${{env.EDK2_PATH}}
