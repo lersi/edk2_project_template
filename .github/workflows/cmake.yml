@@ -14,6 +14,7 @@ env:
   EDK2_PATH: /tmp/edk2
 
 jobs:
+  # check that build succeed on linux systems
   build-linux:
     runs-on: ubuntu-22.04
 
@@ -24,6 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    # import edk2 and cache it, for faster runs
     - name: EDK2 cache
       id: cache-edk2
       uses: actions/cache@v3
@@ -36,6 +38,7 @@ jobs:
         git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
         cd ${{env.EDK2_PATH}}
         git submodule update --init
+    # make sure that edk2 in cache is up to date
     - name: Fetch EDK2
       if: steps.cache-edk2.outputs.cache-hit == 'true'
       run: |
@@ -47,11 +50,13 @@ jobs:
       run: sudo apt install build-essential uuid-dev iasl git nasm  python-is-python3
 
     - name: Configure CMake
+      # sets LOCAL_EDK2 to cached repo path, to make configuration faster
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --target ${{env.BUILD_TARGET}}
 
+  # check that build succeed on mac systems
   build-mac:
     runs-on: macos-12
 
@@ -62,6 +67,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    # import edk2 and cache it, for faster runs
     - name: EDK2 cache
       id: cache-edk2
       uses: actions/cache@v3
@@ -74,6 +80,7 @@ jobs:
         git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
         cd ${{env.EDK2_PATH}}
         git submodule update --init
+    # make sure that edk2 in cache is up to date
     - name: Fetch EDK2
       if: steps.cache-edk2.outputs.cache-hit == 'true'
       run: |
@@ -87,6 +94,8 @@ jobs:
         export PATH=/usr/local/bin:$PATH
 
     - name: Configure CMake
+      # sets LOCAL_EDK2 to cached repo path, to make configuration faster
+      # sets EDK2_TAG to `edk2-stable202111` because there is a problem with the latest stable of edk2 (2022 05)
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}} -DEDK2_TAG=edk2-stable202111
 
     - name: Build
