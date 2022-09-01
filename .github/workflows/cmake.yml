@@ -56,6 +56,18 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --target ${{env.BUILD_TARGET}}
 
+    - name: Save Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: lior package binary
+        path: ./**/OUTPUT/*.efi
+        retention-days: 7
+      
+
+###===================
+# MAC
+###===================
+
   # check that build succeed on mac systems
   build-mac:
     runs-on: macos-12
@@ -101,5 +113,10 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --target ${{env.BUILD_TARGET}}
 
-
+    - name: Save Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: lior package binary
+        path: ./**/OUTPUT/*.efi
+        retention-days: 7
       
