@@ -160,11 +160,13 @@ jobs:
         git fetch
         git submodule update
       
-    - name: install dependencies
+    - name: add pip
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
         cache: 'pip' # caching pip dependencies
+    
+    - name: install dependencies
       # install edk2 pip dependencies
       run: pip install -r ${{env.EDK2_PATH}}/pip-requirements.txt
 
