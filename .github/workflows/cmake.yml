@@ -83,7 +83,6 @@ jobs:
       
     - name: install dependencies
       run: |
-        xcode-select --install
         brew install mtoc nasm acpica qemu 
         export PATH=/usr/local/bin:$PATH
 
