@@ -14,6 +14,10 @@ env:
   EDK2_PATH: /tmp/edk2
 
 jobs:
+###===================
+# LINUX
+###===================
+
   # check that build succeed on linux systems
   build-linux:
     runs-on: ubuntu-22.04
@@ -120,3 +124,61 @@ jobs:
         path: ./**/OUTPUT/*.efi
         retention-days: 7
       
+
+###===================
+# WINDOWS
+###===================
+
+  build-windows:
+    runs-on: windows-2022
+
+    defaults:
+      run:
+        shell: cmd
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    # import edk2 and cache it, for faster runs
+    - name: EDK2 cache
+      id: cache-edk2
+      uses: actions/cache@v3
+      with:
+        path: ${{env.EDK2_PATH}}
+        key: edk2-repo
+    - name: Clone EDK2
+      if: steps.cache-edk2.outputs.cache-hit != 'true'
+      run: |
+        git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
+        cd ${{env.EDK2_PATH}}
+        git submodule update --init
+    # make sure that edk2 in cache is up to date
+    - name: Fetch EDK2
+      if: steps.cache-edk2.outputs.cache-hit == 'true'
+      run: |
+        cd ${{env.EDK2_PATH}}
+        git fetch
+        git submodule update
+      
+    - name: install dependencies
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip' # caching pip dependencies
+      # install edk2 pip dependencies
+      run: pip install -r ${{env.EDK2_PATH}}/pip-requirements.txt
+
+    - name: Configure CMake
+      # sets LOCAL_EDK2 to cached repo path, to make configuration faster
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --target ${{env.BUILD_TARGET}}
+
+    - name: Save Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: lior package binary
+        path: ./**/OUTPUT/*.efi
+        retention-days: 7
+
