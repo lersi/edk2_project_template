@@ -11,7 +11,7 @@ env:
   BUILD_TYPE: Release
   BUILD_TARGET: LiorPkg
   EDK2_REPO: https://github.com/tianocore/edk2.git
-  EDK2_PATH: ../edk2
+  EDK2_PATH: ${{runner.temp}}/edk2
 
 jobs:
 ###===================
