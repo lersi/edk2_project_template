@@ -24,11 +24,24 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: import EDK2
-      uses: ./.github/templates/prepare_edk2.yml
+    - name: EDK2 cache
+      id: cache-edk2
+      uses: actions/cache@v3
       with:
-        edk2_repo: ${{env.EDK2_REPO}}
-        edk2_path: ${{env.EDK2_PATH}}
+        path: ${{env.EDK2_PATH}}
+        key: edk2-repo
+    - name: Clone EDK2
+      if: steps.cache-edk2.outputs.cache-hit != 'true'
+      run: |
+        git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
+        cd ${{env.EDK2_PATH}}
+        git submodule update --init
+    - name: Fetch EDK2
+      if: steps.cache-edk2.outputs.cache-hit == 'true'
+      run: |
+        cd ${{env.EDK2_REPO}}
+        git fetch
+        git submodule update
 
     - name: Install dependencies
       run: sudo apt install build-essential uuid-dev iasl git nasm  python-is-python3
@@ -49,11 +62,24 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: import EDK2
-      uses: ./.github/templates/prepare_edk2.yml
+    - name: EDK2 cache
+      id: cache-edk2
+      uses: actions/cache@v3
       with:
-        edk2_repo: ${{env.EDK2_REPO}}
-        edk2_path: ${{env.EDK2_PATH}}
+        path: ${{env.EDK2_PATH}}
+        key: edk2-repo
+    - name: Clone EDK2
+      if: steps.cache-edk2.outputs.cache-hit != 'true'
+      run: |
+        git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
+        cd ${{env.EDK2_PATH}}
+        git submodule update --init
+    - name: Fetch EDK2
+      if: steps.cache-edk2.outputs.cache-hit == 'true'
+      run: |
+        cd ${{env.EDK2_REPO}}
+        git fetch
+        git submodule update
       
     - name: install dependencies
       run: |
