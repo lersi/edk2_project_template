@@ -160,14 +160,16 @@ jobs:
         git fetch
         git submodule update
       
-    - uses: actions/setup-python@v4
+    - name: copy pip requirements
+      run: |
+        pwd
+        copy ${{env.EDK2_PATH}}/pip-requirements.txt ./requirements.txt
+
+    - name: add pip
+      uses: actions/setup-python@v4
       with:
         python-version: '3.9'
         cache: 'pip' # caching pip dependencies
-    
-    - name: install dependencies
-      # install edk2 pip dependencies
-      run: pip install -r ${{env.EDK2_PATH}}/pip-requirements.txt
 
     - name: Configure CMake
       # sets LOCAL_EDK2 to cached repo path, to make configuration faster
