@@ -137,7 +137,7 @@ jobs:
         shell: cmd
     
     env:
-      EDK2_PATH: ${{runner.temp}}\edk2
+      EDK2_PATH: C:\edk2
     
     steps:
     - uses: actions/checkout@v3
