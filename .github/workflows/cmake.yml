@@ -11,7 +11,7 @@ env:
   BUILD_TYPE: Release
   BUILD_TARGET: LiorPkg
   EDK2_REPO: https://github.com/tianocore/edk2.git
-  EDK2_PATH: /tmp/edk2
+  EDK2_PATH: ../edk2
 
 jobs:
 ###===================
@@ -161,9 +161,7 @@ jobs:
         git submodule update
       
     - name: copy pip requirements
-      run: |
-        cd ${{env.EDK2_PATH}}
-        cp ./pip-requirements.txt ${{github.workspace}}/requirements.txt
+      run: cp ${{env.EDK2_PATH}}/pip-requirements.txt ./requirements.txt
 
     - name: add pip
       uses: actions/setup-python@v4
