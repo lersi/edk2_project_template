@@ -1,0 +1,41 @@
+name: prapare edk2
+
+on:
+  workflow_call:
+    inputs:
+      edk2_repo: 
+        descripotion: url to an edk2 repo
+        default: https://github.com/tianocore/edk2.git
+        required: false
+        type: string
+      edk2_path:
+        descripotion: path to clone the edk repo inside the runner
+        default: /home/runner/edk2
+        required: false
+        type: string
+
+jobs:
+  import_edk2:
+    name: clone edk2 repo
+    steps:
+      - name: EDK2 cache
+        id: cache-edk2
+        uses: actions/cache@v3
+        with:
+          path: ${{inputs.edk2_path}}
+          key: edk2-repo
+
+      - name: Clone EDK2
+        if: steps.cache-edk2.outputs.cache-hit != 'true'
+        run: |
+          git clone ${{inputs.edk2_repo}} ${{inputs.edk2_path}}
+          cd ${{inputs.edk2_path}}
+          git submodule update --init
+        
+      - name: Fetch EDK2
+        if: steps.cache-edk2.outputs.cache-hit == 'true'
+        run: |
+          cd ${{inputs.edk2_path}}
+          git fetch
+          git submodule update
+
