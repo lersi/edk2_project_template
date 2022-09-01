@@ -57,7 +57,7 @@ jobs:
 
     defaults:
       run:
-        shell: zsh
+        shell: bash
     
     steps:
     - uses: actions/checkout@v3
