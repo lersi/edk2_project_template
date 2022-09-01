@@ -11,7 +11,7 @@ env:
   BUILD_TYPE: Release
   BUILD_TARGET: LiorPkg
   EDK2_REPO: https://github.com/tianocore/edk2.git
-  EDK2_PATH: ${{github.workspace}}/../edk2
+  EDK2_PATH: /tmp/edk2
 
 jobs:
 ###===================
@@ -136,6 +136,9 @@ jobs:
       run:
         shell: cmd
     
+    env:
+      EDK2_PATH: ${{runner.temp}}\edk2
+    
     steps:
     - uses: actions/checkout@v3
 
@@ -161,7 +164,7 @@ jobs:
         git submodule update
       
     - name: copy pip requirements
-      run: cp ${{env.EDK2_PATH}}/pip-requirements.txt ./requirements.txt
+      run: cp ${{env.EDK2_PATH}}\pip-requirements.txt .\requirements.txt
 
     - name: add pip
       uses: actions/setup-python@v4
@@ -171,10 +174,10 @@ jobs:
 
     - name: Configure CMake
       # sets LOCAL_EDK2 to cached repo path, to make configuration faster
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}}
+      run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --target ${{env.BUILD_TARGET}}
+      run: cmake --build ${{github.workspace}}\build --target ${{env.BUILD_TARGET}}
 
     - name: Save Artifacts
       uses: actions/upload-artifact@v3
