@@ -183,7 +183,7 @@ jobs:
         cache: 'pip' # caching pip dependencies
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DEDK2_TAG=edk2-stable202111
 
     - name: Build
       run: cmake --build ${{github.workspace}}\build --target ${{env.BUILD_TARGET}}
