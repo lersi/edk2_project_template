@@ -146,8 +146,9 @@ jobs:
     - name: install nasm
       shell: powershell
       run: |
-        Invoke-WebRequest -Uri "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip" -OutFile "C:\nasm.zip"
-        cd C:\
+        md C:\nasm
+        Invoke-WebRequest -Uri "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip" -OutFile "C:\nasm\nasm.zip"
+        cd C:\nasm
         7z e nasm.zip
         ls
 
