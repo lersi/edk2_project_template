@@ -138,9 +138,18 @@ jobs:
 
     env:
       EDK2_PATH: ${{github.workspace}}/edk2
+      VCINSTALLDIR: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
       
     steps:
     - uses: actions/checkout@v3
+
+    - name: install nasm
+      shell: powershell
+      run: |
+        Invoke-WebRequest -Uri "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip" -OutFile "C:\nasm.zip"
+        cd C:\
+        7z e nasm.zip
+        ls
 
     # import edk2 and cache it, for faster runs
     - name: EDK2 cache
