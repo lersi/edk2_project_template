@@ -72,9 +72,9 @@ For customizing the project you can add variables in the file `.vscode/settings.
 
 ```json
 {
-    "cmake.configureEnvironment": {
-        "<cmake variable>": "<your special data>",
-    }
+    "cmake.configureArgs" : [
+      "-D<variable name>=<value>",
+    ]
 }
 ```
 
