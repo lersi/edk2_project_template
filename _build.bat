@@ -54,4 +54,5 @@ echo EDK_TOOLS_BIN %EDK_TOOLS_BIN%
 echo python command: %PYTHON_COMMAND% 
 
 @REM runs the "build" command and passingtrough it's parameters
+echo running: %BASE_TOOLS_PATH%\BinWrappers\WindowsLike\build.bat %RESTVAR%
 call %BASE_TOOLS_PATH%\BinWrappers\WindowsLike\build.bat %RESTVAR%
