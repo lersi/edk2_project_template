@@ -137,7 +137,7 @@ jobs:
         shell: cmd
 
     env:
-      EDK2_PATH: ${{github.workspace}}/edk2
+      EDK2_PATH: ${{github.workspace}}\\edk2
       VS_PATH: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise"
       PATH_TO_DEVELOPER_SETUP: "VC\\Auxiliary\\Build\\vcvars32.bat"
       
@@ -184,8 +184,7 @@ jobs:
         git submodule update
 
     - name: Configure CMake
-      run: |
-        cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DEDK2_TAG=edk2-stable202108
+      run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}} -DEDK2_TAG=edk2-stable202108
 
     - name: Build
       run: |
