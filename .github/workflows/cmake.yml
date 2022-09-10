@@ -144,14 +144,22 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    # save nasm
+    - name: cache nasm
+      id: cache-nasm
+      uses: actions/cache@v3
+      with:
+        path: C:\nasm
+        key: nasm-path
+    # edk2's setup scrip checks for nasm only at 'C:\nasm' so install it there
     - name: install nasm
+      if: steps.cache-basm.outputs.cache-hit != 'true'
       shell: powershell
       run: |
         md C:\nasm
         Invoke-WebRequest -Uri "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip" -OutFile "C:\nasm\nasm.zip"
         cd C:\nasm
         7z e nasm.zip
-        ls
 
     # import edk2 and cache it, for faster runs
     - name: EDK2 cache
@@ -160,6 +168,7 @@ jobs:
       with:
         path: ${{env.EDK2_PATH}}
         key: edk2-repo
+    # clone edk2 and it's submodules
     - name: Clone EDK2
       if: steps.cache-edk2.outputs.cache-hit != 'true'
       run: |
@@ -173,9 +182,6 @@ jobs:
         cd ${{env.EDK2_PATH}}
         git fetch
         git submodule update
-      
-    - name: copy pip requirements
-      run: cp ${{env.EDK2_PATH}}\pip-requirements.txt .\requirements.txt
 
     - name: add pip
       uses: actions/setup-python@v4
@@ -184,7 +190,6 @@ jobs:
 
     - name: Configure CMake
       run: |
-        ${env.VS_PATH}\${env.PATH_TO_DEVELOPER_SETUP}
         cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DEDK2_TAG=edk2-stable202108
 
     - name: Build
