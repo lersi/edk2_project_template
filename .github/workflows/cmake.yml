@@ -36,6 +36,7 @@ jobs:
       with:
         path: ${{env.EDK2_PATH}}
         key: edk2-repo
+    # clone edk2 and it's submodules
     - name: Clone EDK2
       if: steps.cache-edk2.outputs.cache-hit != 'true'
       run: |
@@ -90,6 +91,7 @@ jobs:
       with:
         path: ${{env.EDK2_PATH}}
         key: edk2-repo
+    # clone edk2 and it's submodules
     - name: Clone EDK2
       if: steps.cache-edk2.outputs.cache-hit != 'true'
       run: |
@@ -161,32 +163,12 @@ jobs:
         cd C:\nasm
         7z e nasm.zip
 
-    # import edk2 and cache it, for faster runs
-    - name: EDK2 cache
-      id: cache-edk2
-      uses: actions/cache@v3
-      with:
-        path: ${{env.EDK2_PATH}}
-        key: edk2-repo
-    # clone edk2 and it's submodules
-    - name: Clone EDK2
-      if: steps.cache-edk2.outputs.cache-hit != 'true'
-      run: |
-        git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
-        cd ${{env.EDK2_PATH}}
-        git submodule update --init
-    # make sure that edk2 in cache is up to date
-    - name: Fetch EDK2
-      if: steps.cache-edk2.outputs.cache-hit == 'true'
-      run: |
-        cd ${{env.EDK2_PATH}}
-        git fetch
-        git submodule update
-
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}} -DEDK2_TAG=edk2-stable202108
+      # sets EDK2_TAG to `edk2-stable202108` because there is a problem with the latest stable of edk2 (2022 05)
+      run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DEDK2_TAG=edk2-stable202108
 
     - name: Build
+      # runs visual studio developer environment setup, before building because it fixes build errors
       run: |
         ${env.VS_PATH}\${env.PATH_TO_DEVELOPER_SETUP}
         cmake --build ${{github.workspace}}\build --target ${{env.BUILD_TARGET}}
