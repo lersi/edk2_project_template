@@ -1,0 +1,182 @@
+name: CMake
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  BUILD_TARGET: LiorPkg
+  EDK2_REPO: https://github.com/tianocore/edk2.git
+  EDK2_PATH: /tmp/edk2
+
+jobs:
+###===================
+# LINUX
+###===================
+
+  # check that build succeed on linux systems
+  build-linux:
+    runs-on: ubuntu-22.04
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - uses: actions/checkout@v3
+
+    # import edk2 and cache it, for faster runs
+    - name: EDK2 cache
+      id: cache-edk2
+      uses: actions/cache@v3
+      with:
+        path: ${{env.EDK2_PATH}}
+        key: edk2-repo
+    # clone edk2 and it's submodules
+    - name: Clone EDK2
+      if: steps.cache-edk2.outputs.cache-hit != 'true'
+      run: |
+        git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
+        cd ${{env.EDK2_PATH}}
+        git submodule update --init
+    # make sure that edk2 in cache is up to date
+    - name: Fetch EDK2
+      if: steps.cache-edk2.outputs.cache-hit == 'true'
+      run: |
+        cd ${{env.EDK2_PATH}}
+        git fetch
+        git submodule update
+
+    - name: Install dependencies
+      run: sudo apt install build-essential uuid-dev iasl git nasm  python-is-python3
+
+    - name: Configure CMake
+      # sets LOCAL_EDK2 to cached repo path, to make configuration faster
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --target ${{env.BUILD_TARGET}}
+
+    - name: Save Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: lior package binary
+        path: ./**/OUTPUT/*.efi
+        retention-days: 7
+      
+
+###===================
+# MAC
+###===================
+
+  # check that build succeed on mac systems
+  build-mac:
+    runs-on: macos-12
+
+    defaults:
+      run:
+        shell: bash
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    # import edk2 and cache it, for faster runs
+    - name: EDK2 cache
+      id: cache-edk2
+      uses: actions/cache@v3
+      with:
+        path: ${{env.EDK2_PATH}}
+        key: edk2-repo
+    # clone edk2 and it's submodules
+    - name: Clone EDK2
+      if: steps.cache-edk2.outputs.cache-hit != 'true'
+      run: |
+        git clone ${{env.EDK2_REPO}} ${{env.EDK2_PATH}}
+        cd ${{env.EDK2_PATH}}
+        git submodule update --init
+    # make sure that edk2 in cache is up to date
+    - name: Fetch EDK2
+      if: steps.cache-edk2.outputs.cache-hit == 'true'
+      run: |
+        cd ${{env.EDK2_PATH}}
+        git fetch
+        git submodule update
+      
+    - name: install dependencies
+      run: |
+        brew install mtoc nasm acpica qemu 
+        export PATH=/usr/local/bin:$PATH
+
+    - name: Configure CMake
+      # sets LOCAL_EDK2 to cached repo path, to make configuration faster
+      # sets EDK2_TAG to `edk2-stable202111` because there is a problem with the latest stable of edk2 (2022 05)
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}} -DEDK2_TAG=edk2-stable202111
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --target ${{env.BUILD_TARGET}}
+
+    - name: Save Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: lior package binary
+        path: ./**/OUTPUT/*.efi
+        retention-days: 7
+      
+
+###===================
+# WINDOWS
+###===================
+
+  build-windows:
+    runs-on: windows-2019
+
+    defaults:
+      run:
+        shell: cmd
+
+    env:
+      EDK2_PATH: ${{github.workspace}}\\edk2
+      VS_PATH: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise"
+      PATH_TO_DEVELOPER_SETUP: "VC\\Auxiliary\\Build\\vcvars32.bat"
+      
+    steps:
+    - uses: actions/checkout@v3
+
+    # save nasm
+    - name: cache nasm
+      id: cache-nasm
+      uses: actions/cache@v3
+      with:
+        path: C:\nasm
+        key: nasm-path
+    # edk2's setup scrip checks for nasm only at 'C:\nasm' so install it there
+    - name: install nasm
+      if: steps.cache-nasm.outputs.cache-hit != 'true'
+      shell: powershell
+      run: |
+        md C:\nasm
+        Invoke-WebRequest -Uri "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip" -OutFile "C:\nasm\nasm.zip"
+        cd C:\nasm
+        7z e nasm.zip
+
+    - name: Configure CMake
+      # sets EDK2_TAG to `edk2-stable202108` because there is a problem with the latest stable of edk2 (2022 05)
+      run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DEDK2_TAG=edk2-stable202108
+
+    - name: Build
+      # runs visual studio developer environment setup, before building because it fixes build errors
+      run: |
+        ${env.VS_PATH}\${env.PATH_TO_DEVELOPER_SETUP}
+        cmake --build ${{github.workspace}}\build --target ${{env.BUILD_TARGET}}
+
+    - name: Save Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: lior package binary
+        path: ./**/OUTPUT/*.efi
+        retention-days: 7
+
