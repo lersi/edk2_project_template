@@ -52,7 +52,11 @@ message(NOTICE "using toolchain: ${TOOL_CHAIN}")
 ##
 set(EDK_TOOLS_PATH ${EDK2_SOURCE}/BaseTools)
 set(WORKSPACE ${CMAKE_CURRENT_BINARY_DIR})
+list(APPEND BUILD_ENV_VARIABLES WORKSPACE EDK_TOOLS_PATH)
 
+##
+# find python
+##
 if(NOT DEFINED PYTHON_COMMAND)
     # searching for python command location
     find_package (Python3 3.7 QUIET COMPONENTS Interpreter)
@@ -70,7 +74,17 @@ if(NOT DEFINED PYTHON_COMMAND)
         set(PYTHON_COMMAND ${Python3_EXECUTABLE} CACHE FILEPATH "path to python interperter" FORCE)
     endif()
 endif()
-list(APPEND BUILD_ENV_VARIABLES WORKSPACE PYTHON_COMMAND EDK_TOOLS_PATH)
+list(APPEND BUILD_ENV_VARIABLES PYTHON_COMMAND)
+
+##
+# find nasm
+##
+set(NASM_PREFIX C:\\nasm)
+list(APPEND BUILD_ENV_VARIABLES NASM_PREFIX)
+
+##
+# find clang
+##
 
 ##
 # make sure that edk2 build system is configured
@@ -112,18 +126,18 @@ if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
 
     # set(ENV{PYTHON_COMMAND} ${PYTHON_COMMAND})
     message(NOTICE "building base tools...")
+    string(CONCAT build_tools_cmd "cmd /C \"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\""
+        " && ${EDK_TOOLS_PATH}\\toolsetup.bat ForceRebuild ${TOOL_CHAIN}"
+    )
+    separate_arguments(build_tools_cmd WINDOWS_COMMAND ${build_tools_cmd})
     execute_process(
-        COMMAND "${EDK_TOOLS_PATH}\\toolsetup.bat" ForceRebuild ${TOOL_CHAIN}
-        ECHO_OUTPUT_VARIABLE
-        ECHO_ERROR_VARIABLE
-        OUTPUT_VARIABLE build_output
-        ERROR_VARIABLE  build_error
+        # COMMAND "${EDK_TOOLS_PATH}\\toolsetup.bat" ForceRebuild ${TOOL_CHAIN}
+        COMMAND ${build_tools_cmd}
         RESULT_VARIABLE build_result
         COMMAND_ECHO STDOUT
     )
-    message(NOTICE "build result: ${build_result}")
-    string(FIND "${build_output} ${build_error}" "fatal error" error_index)
-    if(NOT ${build_result} EQUAL 0 OR ${error_index} GREATER_EQUAL 0)
+    # if the artifacts still does not exist, then the build must have failed
+    if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
         message(FATAL_ERROR "base tools build failed!")
     endif()
 endif()
