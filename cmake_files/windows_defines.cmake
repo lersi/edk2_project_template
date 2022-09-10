@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # the user can configure which version of visual studio he has
-set(VS_VERSION VS2019 CHACE STRING "visual studio version i.e VS2019") 
+set(VS_VERSION VS2019 CACHE STRING "visual studio version i.e VS2019") 
 
 # this parameter tels the build script which toolchain to use
 set(TOOL_CHAIN ${VS_VERSION})
