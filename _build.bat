@@ -15,6 +15,8 @@
 @REM ) 
 @REM rest)  <params to build>
 
+echo start _build.bat
+
 @REM fix wierd issue with path
 if not ^" EQU ^%PYTHON_COMMAND:~0,1% set PYTHON_COMMAND="%PYTHON_COMMAND%"
 
