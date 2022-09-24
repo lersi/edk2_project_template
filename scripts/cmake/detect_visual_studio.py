@@ -32,12 +32,15 @@ OLD_VISUAL_STUDIO_DETECTED = False
 ###
 VS_2022_MAJOR = 17
 ENV_SETUP_FILE_NAMES = [
-    "vcvar32.bat",
-    "vcvar64.bat",
-    "vcvarall.bat",
+    "vcvars32.bat",
+    "vsvars32.bat",
+    "vcvars64.bat",
+    "vsvars64.bat",
+    "vcvarsall.bat",
+    "vsvarsall.bat",
 ]
 ENV_SETUP_FILE_DIRS = [
-    ".",
+    "",
     "Common7\\Tools",
     "VC\\Auxiliary\\Build",
 ]
@@ -300,6 +303,34 @@ def get_avaible_visual_studios_from_env() -> List[Tuple[str,str]]:
     if not result:
         raise VisualStudionNotFound("None of visual studios env variables are defined")
     return result
+def parse_msbuild_output(output: str) -> str:
+    """extracts visual studio's version string from msbuild output
+
+    Args:
+        output (str): msbuild's output
+
+    Raises:
+        ParseError: if the output is not msbuild
+
+    Returns:
+        str: visual studio version string
+    """
+    # this line comes before the version string
+    SIGNATURE_LINE = 'Microsoft (R) Build Engine version '
+
+    start_index = output.find(SIGNATURE_LINE)
+    if start_index < 0:
+        # cant find our signature
+        raise ParseError("not msbuild output")
+    start_index += len(SIGNATURE_LINE)
+    # find the nearest new line, so we can isolate this line
+    end_index = output.find('\n', start_index)
+    # take the version string plus other literals
+    tmp_string = output[start_index:end_index].strip()
+    # get only the version string
+    version_string = tmp_string.split(' ')[0]
+    return version_string
+    
 
 def get_vs_version(vsvars_script_path: str) -> Tuple[int,int]:
     """finds visual studio version based on vsvar*.bat script.
@@ -310,21 +341,13 @@ def get_vs_version(vsvars_script_path: str) -> Tuple[int,int]:
     Returns:
         (int,int): Major and Minor version of visual studio.
     """
-    # this line just makes sure we actualy run msbuild
-    SIGNATURE_LINE = 'Microsoft (R) Build Engine version '
     # run the script (adds msbuild to PATH) then run msbuild to detect its version
     run_result = subprocess.run(
         ["cmd","/C",vsvars_script_path,'&&',"msbuild"],
         stdout=subprocess.PIPE,
         check=False,
     )
-    # we are only interested in the first line
-    first_line = run_result.stdout.encode().splitlines(keepends=False)[0]
-    if not first_line.startswith(SIGNATURE_LINE):
-        raise ParseError("not msbuild output")
-    # the version is represented right after this string
-    start_index = len(SIGNATURE_LINE)
-    version_string = first_line[start_index:]
+    version_string = parse_msbuild_output(run_result.stdout.decode())
     return VisualStudioInfo.parse_version(version_string)
     
     
@@ -379,25 +402,42 @@ def get_argparse() -> argparse.ArgumentParser:
 # main functions
 ###========================
 def handle_additional_installers(command_line_arg: str):
+    """handles the installer options
+    and adds these installer into intelnal variable
+
+    Args:
+        command_line_arg (str): the value from the command line
+    """
     global VS_INSTALLER_PATHS
     for installer_path in command_line_arg.split(':'):
         if not path.exists(installer_path):
-            print_error(f"the provided installer path: {installer_path} DOES NOT EXISTS")
+            print_error(f"ERROR: the provided installer path: {installer_path} DOES NOT EXISTS")
             exit(-1)
         if path.isdir(installer_path):
             installer_path = path.join(installer_path, 'vswhere.exe')
             if not path.exists(installer_path):
-                print_error(f"could not find 'vswhere.exe' in installer dir: '{installer_path}'")
+                print_error(f"ERROR: could not find 'vswhere.exe' in installer dir: '{installer_path}'")
                 exit(-1)
+        elif not installer_path.endswith('vswhere.exe'):
+            print_error(f"ERROR: probided installer path does not ends with 'vswhere.exe': '{installer_path}'")
+            exit(-1)
         VS_INSTALLER_PATHS.insert(0, installer_path)
         
 def handle_provided_visual_studio(vs_path: pathlib.Path, vs_tag: str = None):
+    """handles the vs-path option
+
+    Args:
+        vs_path (pathlib.Path): the content of vs-path option
+        vs_tag (str, optional): the option for vs-tag. Defaults to None.
+    """
     if not vs_path.exists():
-        print_error("the provided visual studio path does not exists")
+        print_error("ERROR: the provided visual studio path does not exists")
         exit(-1)
+        
     if vs_path.is_file():
-        if not vs_path.name.startswith("vsvar"):
-            print_error("the provided visual studio path is not a directory")
+        # it's not documented, but the program can recive direct path to vsvar/vcvar
+        if not (vs_path.name.startswith("vsvar") or vs_path.name.startswith("vcvar")):
+            print_error("ERROR: the provided visual studio path is not a directory")
             exit(-1)
         vsvar_path = str(vs_path)
     elif vs_path.is_dir():
@@ -405,32 +445,41 @@ def handle_provided_visual_studio(vs_path: pathlib.Path, vs_tag: str = None):
         try:
             vsvar_path = find_vsvar_script(vs_path)
         except FileNotFoundError as e:
-            print_error(e)
+            print_error("ERROR: "+str(e))
             exit(-1)
     else:
-        print_error("the provided visual studio path does not exists")
+        print_error("ERROR: the provided visual studio path does not exists")
         exit(-1)
     
-    major,minor = get_vs_version(vsvar_path)
+    major,_ = get_vs_version(vsvar_path)
     version_tag = VisualStudioInfo.convert_major_to_tag(major)
     
+    # make sure that the version that the user wants, matches the version of 
+    # visual studio that he has provided.
     if vs_tag:
         if vs_tag != version_tag:
-            print_error("the provided visual studio does not much the provided version")
+            print_error(f"ERROR: the provided visual studio (ver: {version_tag}) does not much the provided version ({vs_tag})")
             exit(-1)
     print(",".join((vsvar_path, version_tag)))
-    
 
 def main():
+    VISUAL_STUDIO_DETECTED = False # for error prints
     parser = get_argparse()
     args = parser.parse_args()
     if args.debug:
         # enable debug prints
         global DEBUG
         DEBUG = True
+        
+    if args.vs_tag:
+        # make sure that we are reciving a valid tag
+        if args.vs_tag not in VisualStudioInfo.tag_lookup_table.values():
+            print_error(f"ERROR: invalid visual studio version/tag: {args.vs_tag}")
+            exit(-1)
     
     if args.installer_paths and args.vs_path:
-        print_error("installers paths and visual studio path, cannot be given at the same time")
+        # conflicting argument
+        print_error("ERROR: installers paths and visual studio path, cannot be given at the same time")
         exit(-1)
     
     if args.vs_path:
@@ -440,54 +489,66 @@ def main():
     elif args.installer_paths:
         handle_additional_installers(args.installer_paths)
     
+    found_vs_info = None # will contain the first visual studio that was found
+    
     try:
         vs_infos = get_avaible_visual_studios_from_installers(VS_INSTALLER_PATHS)
+        # sort the visual studios, so the latest one is first
         vs_infos.sort(key=lambda i: i.major,reverse=True)
-        if not args.vs_tag:
-            print(','.join((vs_infos[0].path,vs_infos[0].vs_tag)))
-            return
         
         for vs_info in vs_infos:
-            if vs_info.vs_tag == args.vs_tag:
-                print(','.join((vs_info.path,vs_info.vs_tag)))
+            VISUAL_STUDIO_DETECTED = True
+            tag = vs_info.vs_tag
+            try:
+                vsvar_script = find_vsvar_script(vs_info.path)
+            except FileNotFoundError as e:
+                # if for some reason we can't find the script, don't fail, go to next one instead
+                debug_print(e)
+                continue
+            
+            if not args.vs_tag or vs_info.vs_tag == args.vs_tag:
+                print(','.join((vsvar_script,tag)))
                 return
+            if not found_vs_info:
+                found_vs_info = (vsvar_script, tag)
     except VisualStudionNotFound:
         debug_print("no visual studio was found from installers")
-        vs_info = None
     
     debug_print("specified version was not found from installers")
     
     try:
         pairs = get_avaible_visual_studios_from_env()
-        if not args.vs_tag:
-            print(','.join(pairs[0]))
-            return
-        
-        for pair in pairs:
-            if pair[1] == args.vs_tag:
-                print(','.join(pair))
+        for vs_dir,tag in pairs:
+            VISUAL_STUDIO_DETECTED = True
+            try:
+                vsvar_script = find_vsvar_script(vs_dir)
+            except FileNotFoundError as e:
+                debug_print(e)
+                continue
+            
+            if not args.vs_tag or args.vs_tag == tag:
+                print(','.join((vsvar_script,tag)))
                 return
+            if not found_vs_info:
+                found_vs_info = (vsvar_script,tag)
             
     except VisualStudionNotFound:
         debug_print("no visual studio was found from env")
-        pairs = None
-    finally:
-        if vs_info:
-            print_error("WARNING: could not find the specified visual studio version, using lates found instead")
-            print(','.join((vs_infos[0].path,vs_infos[0].vs_tag)))
-            return
-        
-        if pairs:
-            print_error("WARNING: could not find the specified visual studio version, using lates found instead")
-            print(','.join(pairs[0]))
-            return
-    print_error("could not find any visual studio, please provide one")
+    
+    # last resort
+    if found_vs_info:
+        print_error("WARNING: could not find the specified visual studio version, using lates found instead")
+        print(','.join(found_vs_info))
+        return
+    
+    if VISUAL_STUDIO_DETECTED:
+        print_error("ERROR: visual studio was detected, but could not find vsvar script")
+    elif OLD_VISUAL_STUDIO_DETECTED:
+        print_error("ERROR: old visual studio was detected, please install newer one")
+    else:
+        print_error("ERROR: could not find any visual studio, please provide one")
     exit(-1)
-        
     
     
-    
-    
-
 if __name__ == '__main__':
     main()
