@@ -4,52 +4,62 @@
 ####
 
 cmake_minimum_required(VERSION 3.20)
-set(_VS_INSTALLER_RELATIVE_PATH "Microsoft Visual Studio\\Installer\\vswhere.exe")
-set(VS_INSTALLER_DEFAULT_PATHS 
-    "$ENV{ProgramFiles\(x86\)}\\${_VS_INSTALLER_RELATIVE_PATH}"
-    "$ENV{ProgramFiles}\\${_VS_INSTALLER_RELATIVE_PATH}"
-)
-# enables users to add there own paths
-set(CUSTOM_VS_INSTALLER_PATHS "" CACHE STRING "list of paths to search for visual studio installer, seperated by colon")
+set(force_vs_search FALSE)
 
-set(VS_INSTALLER_PATHS )
+if(DEFINED CUSTOM_VS_INSTALLER_PATHS)
+    if(NOT ${CUSTOM_VS_INSTALLER_PATHS} STREQUAL ${_CUSTOM_VS_INSTALLER_PATHS})
+        # enables users to add there own paths
+        set(_CUSTOM_VS_INSTALLER_PATHS ${CUSTOM_VS_INSTALLER_PATHS} CACHE INTERNAL "list of paths to search for visual studio installer, seperated by colon" FORCE)
+        set(force_vs_search TRUE)
+        unset(_CUSTOM_VS_DIR CACHE)
+    endif()
+endif()
 
-function(_parse_vswhere_output VSWHERE_OUTPUT OUT_VARIABLE_VS_INSTALL_PATH)
-    # get the entry that we want fron the output
-    string(REGEX MATCH "installationPath:[^\n]*" vs_path_entry ${VSWHERE_OUTPUT})
+if(DEFINED VS_TAG)
+    if(NOT ${VS_TAG} STREQUAL ${_VS_TAG})
+        # enables users to select specific vs version
+        set(_VS_TAG ${VS_TAG} CACHE INTERNAL "visual studio version tag i.e VS2019" FORCE)
+        set(force_vs_search TRUE)
+    endif()
+endif()
 
-    if(${vs_path_entry} STREQUAL "")
-        # if the result is empty, the regex match has failed
-        # set the result to NOTFOUND
-        set(result NOTFOUND)
-    else()
-        # extract the path from that entry
-        string(REPLACE ": " ";" temp_list ${vs_path_entry})
-        list(GET temp_list "-1" result)
+if(DEFINED CUSTOM_VS_DIR)
+    if(DEFINED CUSTOM_VS_INSTALLER_PATHS)
+        message(FATAL_ERROR "'CUSTOM_VS_DIR' and 'CUSTOM_VS_INSTALLER_PATHS' cannot be defined at the same time")
+    endif()
+    if(NOT ${VS_TAG} STREQUAL ${_VS_TAG})
+        # enables users to deliver custom vs location
+        set(_CUSTOM_VS_DIR ${VS_TAG} CACHE INTERNAL "visual studio install dir location" FORCE)
+        set(force_vs_search TRUE)
+        unset(_CUSTOM_VS_INSTALLER_PATHS CACHE)
+    endif()
+endif()
+
+set(force_vs_search TRUE)
+unset(_VS_TAG CACHE)
+if(${force_vs_search} OR NOT DEFINED VS_ENVIRONMENT_SCRIPT)
+    set(args "")
+    if(DEFINED _CUSTOM_VS_INSTALLER_PATHS)
+        set(args "${args} --installer-paths ${_CUSTOM_VS_INSTALLER_PATHS}")
+    endif()
+    if(DEFINED _VS_TAG)
+        set(args "${args} --vs-tag ${_VS_TAG}")
+    endif()
+    if(DEFINED _CUSTOM_VS_DIR)
+        set(args "${args} --vs-path ${_CUSTOM_VS_DIR}")
     endif()
 
-    # return the result to upper scope
-    set(${OUT_VARIABLE_VS_INSTALL_PATH} ${result} PARENT_SCOPE)
-endfunction()
+    execute_process(
+        COMMAND ${PYTHON_COMMAND} ${CMAKE_SCRIPTS_DIR}/detect_visual_studio.py ${args}
+        OUTPUT_VARIABLE output
+        COMMAND_ERROR_IS_FATAL ANY
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    string(REPLACE "," ";" outputs ${output})
 
-
-function(detect_vs_location_vswhere OUT_VARIABLE_VS_INSTALL_PATH)
-    set(found_installer FALSE)
-    foreach(installer_path ${VS_INSTALLER_DEFAULT_PATHS})
-        if(NOT ${found_installer})
-            if(EXISTS ${installer_path})
-                message(NOTICE "found installer at: ${installer_path}")
-                execute_process(COMMAND "${installer_path}"
-                    COMMAND_ERROR_IS_FATAL ANY
-                    OUTPUT_VARIABLE installer_output
-                )
-                _parse_vswhere_output(${installer_output} vs_install_path)
-                if (NOT ${vs_install_path} STREQUAL "NOTFOUND")
-                    set(found_installer TRUE)
-                    set(${OUT_VARIABLE_VS_INSTALL_PATH} ${vs_install_path} PARENT_SCOPE)
-                endif()
-            endif()
-        endif()
-    endforeach()
-endfunction()
+    list(GET outputs 0 vs_script)
+    list(GET outputs 1 vs_tag)
+    set(VS_ENVIRONMENT_SCRIPT ${vs_script} CACHE INTERNAL "the script that defines all visual studio's environment" FORCE)
+    set(_VS_TAG ${vs_tag} CACHE INTERNAL "visual studio version tag i.e VS2019" FORCE)
+endif()
 

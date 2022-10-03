@@ -110,7 +110,7 @@ editing the following variables will change the build system behavior.
 | --------------------- | ----------------- | -------------------------------------- |  
 | LOCAL_EDK2            | URL or LOCAL_PATH | a local path or an url to edk2 repo    |
 | EDK2_TAG              | string            | a tag name or commit or branch of edk2 |
-| VS_VERSION            | string            | **WINDOWS_ONLY** <br/> version of visual studio to use. Format: `VS<year>` |
+| VS_TAG                | string            | **WINDOWS_ONLY** <br/> version of visual studio to use. Format: `VS<year>` |
 
 
 you may want to look at the source of the variables for deeper look.

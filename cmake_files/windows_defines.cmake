@@ -2,50 +2,18 @@ cmake_minimum_required(VERSION 3.20)
 ##
 # Globals
 ##
-set(BUILD_ENV_VARIABLES PACKAGES_PATH)
-set(BUILD_SCRIP _build.sh)
-set(DEFAULT_VS_VERSION VS2019)
+set(BUILD_SCRIPT build.bat) # the name og the build script script to create
+set(BUILD_ENV_VARIABLES PACKAGES_PATH) # list containing all enviroment variables needed for configuration and build
 string(JOIN ":" PACKAGES_PATH ${PACKAGES_PATH})
+set(DEFAULT_NASM_PATH "C:\\nasm")
 
+##
+# Helper functions
+##
 function(_set_variable_to_native_path var_name)
     cmake_path(CONVERT ${${var_name}} TO_NATIVE_PATH_LIST result NORMALIZE)
     set(${var_name} ${result} PARENT_SCOPE)
 endfunction()
-
-##
-# decide which tool chain to use
-##
-if(NOT DEFINED TOOL_CHAIN)
-    if (NOT DEFINED VS_VERSION)
-    # edk2 build system does not support VS versions older than VS2012
-        if(NOT DEFINED MSVC_TOOLSET_VERSION OR ${MSVC_TOOLSET_VERSION} LESS 110)
-            # fall back to default
-            set(VS_VERSION ${DEFAULT_VS_VERSION} CACHE STRING "visual studio version i.e VS2019")
-            message(WARNING "could not find visual studio (or your visual studio is older than 2012), setting it's version to default (${VS_VERSION})")
-
-        elseif (${MSVC_TOOLSET_VERSION} EQUAL 110)
-            set(VS_VERSION VS2012 CACHE STRING "visual studio version i.e VS2019" FORCE)
-        elseif (${MSVC_TOOLSET_VERSION} EQUAL 120)
-            set(VS_VERSION VS2013 CACHE STRING "visual studio version i.e VS2019" FORCE)
-        elseif (${MSVC_TOOLSET_VERSION} EQUAL 140)
-            set(VS_VERSION VS2015 CACHE STRING "visual studio version i.e VS2019" FORCE)
-        elseif (${MSVC_TOOLSET_VERSION} EQUAL 141)
-            set(VS_VERSION VS2017 CACHE STRING "visual studio version i.e VS2019" FORCE)
-        elseif (${MSVC_TOOLSET_VERSION} EQUAL 142)
-            set(VS_VERSION VS2019 CACHE STRING "visual studio version i.e VS2019" FORCE)
-        else() 
-            # this should not happen unless there is a newer version of visual studio
-            message(FATAL_ERROR "your visual studio version is too new, please update this code to support your version")
-        endif()
-    endif()
-    # this parameter tels the build script which toolchain to use
-    set(TOOL_CHAIN ${VS_VERSION})
-elseif(DEFINED VS_VERSION)
-    # makes sure that nonsence does not happen
-    message(WARNING "TOOL_CHAIN and VS_VERSION cannot be both defined, ignoring VS_VERSION")
-    unset(VS_VERSION CACHE)
-endif()
-message(NOTICE "using toolchain: ${TOOL_CHAIN}")
 
 ##
 # set esential data
@@ -77,14 +45,51 @@ endif()
 list(APPEND BUILD_ENV_VARIABLES PYTHON_COMMAND)
 
 ##
+# find visual studio (toolchain)
+##
+# detects vs environment configuration script and the tool chain tag
+include(cmake_files/detect_visual_studio.cmake)
+set(TOOL_CHAIN ${_VS_TAG})
+
+message(NOTICE "using toolchain: ${TOOL_CHAIN}")
+
+##
 # find nasm
 ##
-set(NASM_PREFIX C:\\nasm)
+if(DEFINED NASM_PATH)
+    set(NASM_PREFIX ${NASM_PATH} CACHE INTERNAL "path to nasm insall dir" FORCE)
+elseif(NOT DEFINED CACHE{NASM_PREFIX})
+    # setting up for the first time
+    set(default_nasm_exec "${DEFAULT_NASM_PATH}\\nasm.exe")
+    # check for default location first
+    if(EXISTS default_nasm_exec)
+        set(NASM_PREFIX ${DEFAULT_NASM_PATH} CACHE INTERNAL "path to nasm insall dir" FORCE)
+    else()
+    # try to find nasm from path
+        execute_process(
+            COMMAND cmd /C where nasm
+            OUTPUT_VARIABLE output
+            ERROR_QUIET
+            RESULT_VARIABLE run_result
+        )
+        if(${run_result} EQUAL 0)
+            # found nasm
+            string(STRIP ${output} nasm_cmd_path)
+            get_filename_component(nasm_path ${nasm_cmd_path} DIRECTORY)
+            set(NASM_PREFIX ${nasm_path} CACHE INTERNAL "path to nasm insall dir" FORCE)
+        else()
+            message(WARNING "cound not find nasm, components that uses nasm will fail to compile")
+            message(WARNING "you can specify nasm's directory by setting `NASM_PATH`")
+        endif()
+    endif()
+endif()
+
 list(APPEND BUILD_ENV_VARIABLES NASM_PREFIX)
 
 ##
 # find clang
 ##
+
 
 ##
 # make sure that edk2 build system is configured
@@ -126,7 +131,7 @@ if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
 
     # set(ENV{PYTHON_COMMAND} ${PYTHON_COMMAND})
     message(NOTICE "building base tools...")
-    string(CONCAT build_tools_cmd "cmd /C \"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\""
+    string(CONCAT build_tools_cmd "cmd /C \"${VS_ENVIRONMENT_SCRIPT}\""
         " && ${EDK_TOOLS_PATH}\\toolsetup.bat ForceRebuild ${TOOL_CHAIN}"
     )
     separate_arguments(build_tools_cmd WINDOWS_COMMAND ${build_tools_cmd})
@@ -159,6 +164,12 @@ if(NOT DEFINED EDK_BIN_WRAPPERS)
     endif()
 endif()
 
+##
+# description: this function creates a Cmake target for a package.
+# 
+# arg1: PKG_NAME  the name of the package to create a target for
+# arg2: BUILD_ARGS  list of argument to pass to edk's build system
+##
 function(internal_add_package PKG_NAME BUILD_ARGS)
     # list all files in our pkg
     file(GLOB_RECURSE PKG_SOURCE_FILES
@@ -170,13 +181,13 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
     set(EXPORTED_ENV "")
     foreach(var_name ${BUILD_ENV_VARIABLES})
         set(var_value "${${var_name}}")
-        string(APPEND EXPORTED_ENV "\n" "export ${var_name}=\"${var_value}\"")
+        _set_variable_to_native_path(var_value)
+        string(APPEND EXPORTED_ENV "\n" "set ${var_name}=\"${var_value}\"")
     endforeach()
     
     string(JOIN "\n" script_content
-        "#!/bin/zsh"
         "${EXPORTED_ENV}"
-        "export PATH=${EDK_BIN_WRAPPERS}:$PATH"
+        "set PATH=${EDK_BIN_WRAPPERS}:$PATH"
         "echo build $@"
         "build $@"
     )
@@ -184,7 +195,7 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
     file(GENERATE OUTPUT ${SCRIPT_PATH}
         CONTENT ${script_content}
         FILE_PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        NEWLINE_STYLE UNIX
+        NEWLINE_STYLE WIN32
     )
 
     # create the target
@@ -201,39 +212,4 @@ function(add_package PKG_NAME BUILD_ARGS)
     list(APPEND BUILD_LIST ${BUILD_ARGS})
     list(APPEND BUILD_LIST ${ARGN})
     internal_add_package(${PKG_NAME} "${BUILD_LIST}")
-endfunction()
-
-
-
-
-# this parameter tels which build script to use
-set(BUILD_SCRIPT _build.bat)
-
-##
-# description: this function creates a Cmake target for a package.
-# 
-# arg1: PKG_NAME  the name of the package to create a target for
-# arg2: BUILD_ARGS  list of argument to pass to edk's build system
-##
-function(_add_package PKG_NAME BUILD_ARGS)
-    # list all files in our pkg
-    file(GLOB_RECURSE PKG_SOURCE_FILES
-        LIST_DIRECTORIES false
-        ${PACKAGE_DIR}/${PKG_NAME}/**
-    )
-
-    # fix path in all arguments so it matches windows style
-    string(JOIN " " BUILD_SCRIPT_ARGS ${CMAKE_CURRENT_BINARY_DIR} ${EDK2_SOURCE} ${VS_VERSION}  ${PACKAGE_DIR} ${BUILD_ARGS})
-    string(REPLACE "/" "\\" BUILD_SCRIPT_ARGS ${BUILD_SCRIPT_ARGS})
-
-    # seperate the string back to its arguments
-    separate_arguments(BUILD_SCRIPT_ARGS WINDOWS_COMMAND ${BUILD_SCRIPT_ARGS})  
-    message("script args: ${BUILD_SCRIPT_ARGS}")
-
-    add_custom_target(${PKG_NAME}
-        ${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_SCRIPT} ${BUILD_SCRIPT_ARGS} 
-        SOURCES ${PKG_SOURCE_FILES}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
-        USES_TERMINAL
-    )
 endfunction()
