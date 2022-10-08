@@ -50,7 +50,7 @@ if(${force_vs_search} OR NOT DEFINED VS_ENVIRONMENT_SCRIPT)
     endif()
 
     execute_process(
-        COMMAND ${PYTHON_COMMAND} ${CMAKE_SCRIPTS_DIR}/detect_visual_studio.py ${args}
+        COMMAND cmd /C ${PYTHON_COMMAND} ${CMAKE_SCRIPTS_DIR}/detect_visual_studio.py ${args}
         OUTPUT_VARIABLE output
         COMMAND_ERROR_IS_FATAL ANY
         OUTPUT_STRIP_TRAILING_WHITESPACE
