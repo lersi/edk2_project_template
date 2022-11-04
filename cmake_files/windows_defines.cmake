@@ -216,8 +216,10 @@ if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
 
     # set(ENV{PYTHON_COMMAND} ${PYTHON_COMMAND})
     message(NOTICE "building base tools...")
+    set(ENV{PATH} "${BASE_TOOLS_ARTIFACTS};$ENV{PATH}")
     string(CONCAT build_tools_cmd "cmd /C \"${VS_ENVIRONMENT_SCRIPT}\""
         " && ${EDK_TOOLS_PATH}\\toolsetup.bat ForceRebuild ${TOOL_CHAIN}"
+        " && ${EDK_TOOLS_PATH}\\toolsetup.bat Rebuild ${TOOL_CHAIN}"
     )
     separate_arguments(build_tools_cmd WINDOWS_COMMAND ${build_tools_cmd})
     execute_process(
