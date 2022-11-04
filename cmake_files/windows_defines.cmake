@@ -290,6 +290,8 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
         "${EXPORTED_ENV}"
         "set PATH=${EDK_TOOLS_BIN};${EDK_BIN_WRAPPERS};\%PATH\%"
         "set PYTHONPATH=${BASETOOLS_PYTHON_SOURCE};%PYTHONPATH%"
+        "echo path: %PATH%"
+        "echo ===================="
         "echo build \%*"
         "build \%*"
     )
