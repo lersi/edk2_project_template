@@ -28,9 +28,10 @@ endfunction()
 # set esential data
 ##
 set(EDK_TOOLS_PATH ${EDK2_SOURCE}/BaseTools)
+_set_variable_to_native_path(EDK_TOOLS_PATH)
 set(BASE_TOOLS_PATH ${EDK_TOOLS_PATH})
 set(WORKSPACE_TOOLS_PATH ${EDK_TOOLS_PATH})
-set(BASETOOLS_PYTHON_SOURCE ${BASE_TOOLS_PATH}/Source/Python)
+set(BASETOOLS_PYTHON_SOURCE ${BASE_TOOLS_PATH}\\Source\\Python)
 set(WORKSPACE ${CMAKE_CURRENT_BINARY_DIR})
 list(APPEND BUILD_ENV_VARIABLES WORKSPACE EDK_TOOLS_PATH BASE_TOOLS_PATH WORKSPACE_TOOLS_PATH)
 
@@ -75,11 +76,13 @@ if(NOT DEFINED PYTHON_COMMAND)
             message(SEND_ERROR ${error_msg})
         else()
         # show python loocation to user, and save to cache
-            message(NOTICE "found python command at: ${Python3_EXECUTABLE}")
-            set(PYTHON_COMMAND ${Python3_EXECUTABLE} CACHE FILEPATH "path to python interperter or name of python command" FORCE)
+            cmake_path(CONVERT ${Python3_EXECUTABLE} TO_NATIVE_PATH_LIST python3_path NORMALIZE)
+            message(NOTICE "found python command at: ${python3_path}")
+            set(PYTHON_COMMAND "${python3_path}" CACHE STRING "path to python interperter or name of python command" FORCE)
         endif()
     endif()
 endif()
+message(NOTICE "PYTHON_COMMAND: ${PYTHON_COMMAND}")
 list(APPEND BUILD_ENV_VARIABLES PYTHON_COMMAND)
 
 ##
@@ -95,6 +98,16 @@ message(NOTICE "using toolchain: ${TOOL_CHAIN}")
 # find nasm
 ##
 if(DEFINED NASM_PATH)
+    # sanity check
+    if(NOT EXISTS ${NASM_PATH})
+        message(ERROR "the path provided by `NASM_PATH` does not exist!")
+    endif()
+    # make sure that the path ends with a backslash
+    cmake_path(CONVERT ${NASM_PATH} TO_NATIVE_PATH_LIST NASM_PATH NORMALIZE)
+    string(REGEX MATCH ".$" last_char ${NASM_PATH})
+    if(NOT last_char STREQUAL "\\")
+        set(NASM_PATH ${NASM_PATH}\\)
+    endif()
     set(NASM_PREFIX ${NASM_PATH} CACHE INTERNAL "path to nasm insall dir" FORCE)
 elseif(NOT DEFINED NASM_PREFIX)
     # setting up for the first time
@@ -130,6 +143,11 @@ endif()
 # find clang
 ##
 if(DEFINED CLANG_BIN_PATH)
+    # sanity check
+    if(NOT EXISTS ${CLANG_BIN_PATH})
+        message(ERROR "the path provided by `CLANG_BIN_PATH` does not exist!")
+    endif()
+    cmake_path(CONVERT ${CLANG_BIN_PATH} TO_NATIVE_PATH_LIST CLANG_BIN_PATH NORMALIZE)
     set(CLANG_BIN ${CLANG_BIN_PATH} CACHE INTERNAL "path to clang's bin dir" FORCE)
 elseif(NOT DEFINED CLANG_BIN)
     set(default_clang_exec ${DEFAULT_CLANG_PATH}\\clang.exe)
@@ -161,7 +179,7 @@ endif()
 ##
 # make sure that edk2 build system is configured
 ##
-set(CONF_PATH ${CMAKE_BINARY_DIR}/conf CACHE PATH "where to save configuration for EDK build tools")
+set(CONF_PATH ${CMAKE_BINARY_DIR}\\conf CACHE PATH "where to save configuration for EDK build tools")
 list(APPEND BUILD_ENV_VARIABLES CONF_PATH)
 
 if((NOT EXISTS ${CONF_PATH}) OR (NOT EXISTS ${CONF_PATH}/tools_def.txt))
@@ -188,7 +206,7 @@ endif()
 ##
 # make sure base tools is compiled
 ##
-set(BASE_TOOLS_ARTIFACTS ${EDK_TOOLS_PATH}/Bin/Win32)
+set(BASE_TOOLS_ARTIFACTS ${EDK_TOOLS_PATH}\\Bin\\Win32)
 if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
     foreach(var_name ${BUILD_ENV_VARIABLES})
         _set_variable_to_native_path(${var_name})
@@ -214,12 +232,12 @@ if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
     endif()
 endif()
 set(EDK_TOOLS_BIN ${BASE_TOOLS_ARTIFACTS})
+_set_variable_to_native_path(EDK_TOOLS_BIN)
 list(APPEND BUILD_ENV_VARIABLES EDK_TOOLS_BIN)
 
 ##
 # check which bin dir to use
 ##
-unset(EDK_BIN_WRAPPERS CACHE)
 if(NOT DEFINED EDK_BIN_WRAPPERS)
     _set_variable_to_native_path(EDK_TOOLS_PATH)
     execute_process(
@@ -253,7 +271,12 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
     foreach(var_name ${BUILD_ENV_VARIABLES})
         set(var_value "${${var_name}}")
         _set_variable_to_native_path(var_value)
-        string(APPEND EXPORTED_ENV "\n" "set ${var_name}=${var_value}")
+        string(FIND "${var_value}" " " has_space)
+        if(${has_space} GREATER_EQUAL 0)
+            string(APPEND EXPORTED_ENV "\n" "set ${var_name}=\"${var_value}\"")
+        else()
+            string(APPEND EXPORTED_ENV "\n" "set ${var_name}=${var_value}")
+        endif()
     endforeach()
     
     string(JOIN "\n" script_content
@@ -276,7 +299,6 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
         FILE_PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
         NEWLINE_STYLE WIN32
     )
-    message("${SCRIPT_PATH} ${BUILD_ARGS}")
     # create the target
     add_custom_target(${PKG_NAME}
         ${SCRIPT_PATH} ${BUILD_ARGS} 
@@ -290,6 +312,5 @@ function(add_package PKG_NAME BUILD_ARGS)
     set(BUILD_LIST "")
     list(APPEND BUILD_LIST ${BUILD_ARGS})
     list(APPEND BUILD_LIST ${ARGN})
-    message(NOTICE "BUILD_LIST: ${BUILD_LIST}")
     internal_add_package(${PKG_NAME} "${BUILD_LIST}")
 endfunction()

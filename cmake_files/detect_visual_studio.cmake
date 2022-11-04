@@ -39,6 +39,7 @@ set(force_vs_search TRUE)
 unset(_VS_TAG CACHE)
 if(${force_vs_search} OR NOT DEFINED VS_ENVIRONMENT_SCRIPT)
     set(args "")
+    # add the appropriet flags for each defined configuration variable
     if(DEFINED _CUSTOM_VS_INSTALLER_PATHS)
         set(args "${args} --installer-paths ${_CUSTOM_VS_INSTALLER_PATHS}")
     endif()
@@ -49,6 +50,7 @@ if(${force_vs_search} OR NOT DEFINED VS_ENVIRONMENT_SCRIPT)
         set(args "${args} --vs-path ${_CUSTOM_VS_DIR}")
     endif()
 
+    # get the desired file path
     execute_process(
         COMMAND cmd /C ${PYTHON_COMMAND} ${CMAKE_SCRIPTS_DIR}/detect_visual_studio.py ${args}
         OUTPUT_VARIABLE output
