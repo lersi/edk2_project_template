@@ -292,6 +292,7 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
         "set PYTHONPATH=${BASETOOLS_PYTHON_SOURCE};%PYTHONPATH%"
         "echo path: %PATH%"
         "echo ===================="
+        "ls ${EDK_TOOLS_BIN}"
         "echo build \%*"
         "build \%*"
     )
