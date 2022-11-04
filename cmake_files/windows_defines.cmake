@@ -219,7 +219,6 @@ if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
     set(ENV{PATH} "${BASE_TOOLS_ARTIFACTS};$ENV{PATH}")
     string(CONCAT build_tools_cmd "cmd /C \"${VS_ENVIRONMENT_SCRIPT}\""
         " && ${EDK_TOOLS_PATH}\\toolsetup.bat ForceRebuild ${TOOL_CHAIN}"
-        " && ${EDK_TOOLS_PATH}\\toolsetup.bat Rebuild ${TOOL_CHAIN}"
     )
     separate_arguments(build_tools_cmd WINDOWS_COMMAND ${build_tools_cmd})
     execute_process(
@@ -292,9 +291,6 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
         "${EXPORTED_ENV}"
         "set PATH=${EDK_TOOLS_BIN};${EDK_BIN_WRAPPERS};\%PATH\%"
         "set PYTHONPATH=${BASETOOLS_PYTHON_SOURCE};%PYTHONPATH%"
-        "echo path: %PATH%"
-        "echo ===================="
-        "ls ${EDK_TOOLS_BIN}"
         "echo build \%*"
         "build \%*"
     )
