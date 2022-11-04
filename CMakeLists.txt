@@ -11,6 +11,7 @@ include(cmake_files/core_count.cmake)
 # specifiece the dir that contains sources for EDK2
 set(PACKAGE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/uefi_apps)
 set(PACKAGES_PATH ${PACKAGE_DIR} ${EDK2_SOURCE})
+set(CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake)
 
 # platform specific modules
 if(WIN32)

@@ -140,8 +140,6 @@ jobs:
 
     env:
       EDK2_PATH: ${{github.workspace}}\\edk2
-      VS_PATH: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise"
-      PATH_TO_DEVELOPER_SETUP: "VC\\Auxiliary\\Build\\vcvars32.bat"
       
     steps:
     - uses: actions/checkout@v3
@@ -168,9 +166,7 @@ jobs:
       run: cmake -B ${{github.workspace}}\build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DEDK2_TAG=edk2-stable202108
 
     - name: Build
-      # runs visual studio developer environment setup, before building because it fixes build errors
       run: |
-        ${env.VS_PATH}\${env.PATH_TO_DEVELOPER_SETUP}
         cmake --build ${{github.workspace}}\build --target ${{env.BUILD_TARGET}}
 
     - name: Save Artifacts
