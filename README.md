@@ -116,10 +116,10 @@ editing the following variables will change the build system behavior.
 you may want to look at the source of the variables for deeper look.
 | Variable                           | definition/use Location             |
 | ---------------------------------- | ----------------------------------- |
-| LOCAL_EDK2                         | `cmake_files/include_edk2.cmake`    |
-| EDK2_TAG                           | `cmake_files/include_edk2.cmake`    |
-| VS_VERSION                         | `cmake_files/windows_defines.cmake` |
-| TOOL_CHAIN (not user configurable) | `cmake_files/windows_defines.cmake` |
+| LOCAL_EDK2                         | `cmake_files/generic/include_edk2.cmake`    |
+| EDK2_TAG                           | `cmake_files/generic/include_edk2.cmake`    |
+| VS_TAG                             | `cmake_files/windows/windows_defines.cmake` |
+| TOOL_CHAIN (not user configurable) | `cmake_files/windows/windows_defines.cmake` |
 
 
 ## Brief Description of edk2 build system

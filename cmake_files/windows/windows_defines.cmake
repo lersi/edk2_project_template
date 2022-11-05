@@ -89,7 +89,7 @@ list(APPEND BUILD_ENV_VARIABLES PYTHON_COMMAND)
 # find visual studio (toolchain)
 ##
 # detects vs environment configuration script and the tool chain tag
-include(cmake_files/detect_visual_studio.cmake)
+include(cmake_files/windows/detect_visual_studio.cmake)
 set(TOOL_CHAIN ${_VS_TAG})
 
 message(NOTICE "using toolchain: ${TOOL_CHAIN}")
