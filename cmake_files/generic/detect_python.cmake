@@ -21,6 +21,7 @@ if(NOT DEFINED PYTHON_COMMAND)
     set(python_found FALSE)
     foreach(python_command_name ${_PYTHON_3_COMMANDS})
         # for each command name check if it exists and suitable
+        message(NOTICE "string(REPLACE \" \" \":\" _command ${python_command_name})") 
         string(REPLACE " " ":" _command ${python_command_name})
         execute_process(
             COMMAND ${_command} --version
