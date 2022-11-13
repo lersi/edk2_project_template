@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.20)
 set(BUILD_ENV_VARIABLES PACKAGES_PATH)
 set(BUILD_SCRIP _build.sh)
 string(JOIN ":" PACKAGES_PATH ${PACKAGES_PATH})
+set(SHELL_CMD "/bin/bash")
+set(SHELL_EXECUTE_ARG "-c")
 
 ##
 # decide which tool chain to use
