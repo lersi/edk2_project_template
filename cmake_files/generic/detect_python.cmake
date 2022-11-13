@@ -30,7 +30,7 @@ if(NOT DEFINED PYTHON_COMMAND)
         )
         if(result EQUAL 0)
         # the python command has executed successfuly (it exits)
-            string(REPLACE " " ";" outputs ${output}) 
+            string(REPLACE " " ";" outputs "${output}") 
             list(GET outputs 1 version)
             # check if the python version matches our requirments
             if(${version} VERSION_GREATER_EQUAL ${_MINIMUM_PYTHON_VERSION})
