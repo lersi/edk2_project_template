@@ -1,3 +1,7 @@
+#brief: integrates edk2 source repo into the build tree
+# input variables: None
+# out variables: 
+#     EDK2_SOURCE - the full path to edk2 repo root dir
 cmake_minimum_required(VERSION 3.17)
 include(FetchContent)
 

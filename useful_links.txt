@@ -1,0 +1,47 @@
+=== list of all tianocore documentation (more or less)
+https://github.com/tianocore-docs/tianocore-docs.github.io
+https://github.com/tianocore/tianocore.github.io/wiki/EDK-II-Documents
+===
+
+====== compilation env
+windows https://github.com/tianocore/tianocore.github.io/wiki/Windows-systems#compile-tools
+macos   https://github.com/tianocore/tianocore.github.io/wiki/Xcode
+linux   https://github.com/tianocore/tianocore.github.io/wiki/Using-EDK-II-with-Native-GCC
+https://edk2-docs.gitbook.io/edk-ii-basetools-user-guides/build
+https://edk2-docs.gitbook.io/edk-ii-build-specification/4_edk_ii_build_process_overview/41_edk_ii_build_system
+https://github.com/tianocore/tianocore.github.io/wiki/Getting-Started-with-EDK-II
+=====
+
+===== guides
+https://edk2-docs.gitbook.io/edk-ii-module-writer-s-guide/
+https://edk2-docs.gitbook.io/edk-ii-uefi-driver-writer-s-guide/
+=====
+
+=====build files specification
+https://edk2-docs.gitbook.io/edk-ii-fdf-specification/
+https://edk2-docs.gitbook.io/edk-ii-dsc-specification
+https://edk2-docs.gitbook.io/edk-ii-dec-specification/
+https://edk2-docs.gitbook.io/edk-ii-inf-specification
+=====
+
+=====security
+https://edk2-docs.gitbook.io/a-tour-beyond-bios-memory-protection-in-uefi-bios/
+https://edk2-docs.gitbook.io/security-advisory/
+https://edk2-docs.gitbook.io/understanding-the-uefi-secure-boot-chain/
+=====
+
+
+==========================training
+https://github.com/tianocore-training/Tianocore_Training_Contents/wiki
+https://github.com/tianocore/tianocore.github.io/wiki/Training
+https://github.com/tianocore-docs/Training
+==========================
+
+=== etc
+https://github.com/tianocore-docs
+https://edk2-docs.gitbook.io/edk-ii-c-coding-standards-specification/
+===
+
+=== lot of info about computers
+https://opensecuritytraining.info/IntroBIOS.html
+===

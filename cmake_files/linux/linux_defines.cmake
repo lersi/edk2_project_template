@@ -43,29 +43,7 @@ list(APPEND BUILD_ENV_VARIABLES TARGET_TOOLS)
 ##
 set(EDK_TOOLS_PATH ${EDK2_SOURCE}/BaseTools)
 set(WORKSPACE ${CMAKE_CURRENT_BINARY_DIR})
-if(NOT DEFINED PYTHON_COMMAND)
-    # searching for python command location
-    execute_process(
-        COMMAND bash -c "which python3"
-        OUTPUT_VARIABLE PYTHON_COMMAND
-    )
-    string(STRIP "${PYTHON_COMMAND}" PYTHON_COMMAND)
-    if("${PYTHON_COMMAND}" STREQUAL "")
-    # python location was not found
-        string(CONCAT error_msg
-            "could not find the location of the python command, "
-            "please use `-DPYTHON_COMMAND=<path to your python interperter>`\n"
-            "to declare the python interperter for use"
-        )
-        message(SEND_ERROR ${error_msg})
-    else()
-    # show python loocation to user, and save to cache
-        message(NOTICE "found python command at: ${PYTHON_COMMAND}")
-        set(PYTHON_COMMAND ${PYTHON_COMMAND} CACHE FILEPATH "path to python interperter" FORCE)
-    endif()
-else()
-    set(PYTHON_COMMAND ${PYTHON_COMMAND} CACHE FILEPATH "path to python interperter") 
-endif()
+include(cmake_files/generic/detect_python.cmake)
 list(APPEND BUILD_ENV_VARIABLES WORKSPACE PYTHON_COMMAND EDK_TOOLS_PATH)
 
 ##
@@ -73,65 +51,17 @@ list(APPEND BUILD_ENV_VARIABLES WORKSPACE PYTHON_COMMAND EDK_TOOLS_PATH)
 ##
 set(CONF_PATH ${CMAKE_BINARY_DIR}/conf CACHE PATH "where to save configuration for EDK build tools")
 list(APPEND BUILD_ENV_VARIABLES CONF_PATH)
-
-if((NOT EXISTS ${CONF_PATH}) OR (NOT EXISTS ${CONF_PATH}/tools_def.txt))
-    make_directory(${CONF_PATH})
-    set(ENV{RECONFIG} "TRUE")
-    foreach(var_name ${BUILD_ENV_VARIABLES})
-        set(ENV{${var_name}} "${${var_name}}")
-    endforeach()
-    message(NOTICE ${env_string})
-    execute_process(
-        COMMAND /bin/bash -c "source ${EDK_TOOLS_PATH}/BuildEnv"
-        OUTPUT_VARIABLE conf_result
-        ERROR_VARIABLE conf_error
-        ECHO_OUTPUT_VARIABLE
-        ECHO_ERROR_VARIABLE
-        COMMAND_ERROR_IS_FATAL ANY
-    )
-endif()
+include(cmake_files/unix/configure_build_system.cmake)
 
 ##
 # make sure base tools is compiled
 ##
-set(BASE_TOOLS_ARTIFACTS ${EDK_TOOLS_PATH}/Source/C/bin)
-if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS} OR BASETOOLS_FAILED)
-    set(ENV{PYTHON_COMMAND} ${PYTHON_COMMAND})
-    message(NOTICE "building base tools...")
-    execute_process(
-        COMMAND make -C ${EDK_TOOLS_PATH}
-        OUTPUT_QUIET
-        RESULT_VARIABLE build_result
-    )
-    if(NOT ${build_result} EQUAL 0)
-        execute_process(
-            COMMAND make -C ${EDK_TOOLS_PATH} clean
-            OUTPUT_QUIET
-            ERROR_QUIET
-        )
-        set(BASETOOLS_FAILED TRUE CACHE INTERNAL "basetools compilation failed last run")
-        message(FATAL_ERROR "base tools build failed!")
-    elseif()
-        unset(BASETOOLS_FAILED CACHE)
-    endif()
-endif()
+include(cmake_files/unix/ensure_basetools.cmake)
 
 ##
-# check which bin dir to use
+# select which bin dir to use
 ##
-if(NOT DEFINED EDK_BIN_WRAPPERS)
-    execute_process(
-        COMMAND ${PYTHON_COMMAND} -c "import edk2basetools" 
-        RESULT_VARIABLE python_result
-        OUTPUT_QUIET
-        ERROR_QUIET
-    )
-    if(${python_result} EQUAL 0)
-        set(EDK_BIN_WRAPPERS ${EDK_TOOLS_PATH}/BinPipWrappers/PosixLike CACHE INTERNAL "")
-    else()
-        set(EDK_BIN_WRAPPERS ${EDK_TOOLS_PATH}/BinWrappers/PosixLike CACHE INTERNAL "")
-    endif()
-endif()
+include(cmake_files/unix/select_edk_bin_dir.cmake)
 
 function(internal_add_package PKG_NAME BUILD_ARGS)
     # list all files in our pkg

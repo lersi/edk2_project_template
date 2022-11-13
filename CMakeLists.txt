@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.12)
 
 project(edk2_template LANGUAGES C ASM)
 
+# include general files
+include(cmake_files/generic/helper_functions.cmake)
+
 # set(LOCAL_EDK2 <full path to your local edk2 repo>) # this variable could also be be transfered to cmake in the command line
 # imports edk2 project
 include(cmake_files/generic/include_edk2.cmake)

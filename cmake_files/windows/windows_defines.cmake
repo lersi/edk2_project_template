@@ -7,14 +7,7 @@ set(BUILD_ENV_VARIABLES PACKAGES_PATH) # list containing all enviroment variable
 string(JOIN ";" PACKAGES_PATH ${PACKAGES_PATH})
 set(DEFAULT_NASM_PATH "C:\\nasm")
 set(DEFAULT_CLANG_PATH "C:\\Program Files\\LLVM\\bin")
-set(_PYTHON_3_COMMANDS 
-        "py -3" 
-        "python" 
-        "python3"
-        "python3.8"
-        "python3.9"
-        "python3.10"
-)
+
 
 ##
 # Helper functions
@@ -38,51 +31,7 @@ list(APPEND BUILD_ENV_VARIABLES WORKSPACE EDK_TOOLS_PATH BASE_TOOLS_PATH WORKSPA
 ##
 # find python
 ##
-if(NOT DEFINED PYTHON_COMMAND)
-    # first try to find default python command names in path
-    set(python_found FALSE)
-    foreach(python_command_name ${_PYTHON_3_COMMANDS})
-        if(NOT ${python_found})
-            string(REPLACE " " ":" _command ${python_command_name})
-            execute_process(
-                COMMAND ${_command} --version
-                RESULT_VARIABLE result
-                OUTPUT_VARIABLE output
-                ERROR_QUIET
-            )
-            if(result EQUAL 0)
-                string(REPLACE " " ";" outputs ${output})
-                list(GET outputs 1 version)
-                if(${version} VERSION_GREATER_EQUAL "3.7")
-                    message(NOTICE "found python command as: ${python_command_name}")
-                    set(PYTHON_COMMAND ${python_command_name} CACHE FILEPATH "path to python interperter or name of python command" FORCE)
-                    set(python_found TRUE)
-                endif()
-            endif()
-        endif()
-    endforeach()
-    
-    if(NOT ${python_found})
-    # python command was not found, find it using cmake.
-        # searching for python command location
-        find_package (Python3 3.7 QUIET COMPONENTS Interpreter)
-        if(NOT ${Python3_Interpreter_FOUND})
-        # python location was not found
-            string(CONCAT error_msg
-                "could not find the location of the python command (or your python is older than 3.7), \n"
-                "please use `-DPYTHON_COMMAND=<path to your python interperter>`\n"
-                "to declare the python interperter for use"
-            )
-            message(SEND_ERROR ${error_msg})
-        else()
-        # show python loocation to user, and save to cache
-            cmake_path(CONVERT ${Python3_EXECUTABLE} TO_NATIVE_PATH_LIST python3_path NORMALIZE)
-            message(NOTICE "found python command at: ${python3_path}")
-            set(PYTHON_COMMAND "${python3_path}" CACHE STRING "path to python interperter or name of python command" FORCE)
-        endif()
-    endif()
-endif()
-message(NOTICE "PYTHON_COMMAND: ${PYTHON_COMMAND}")
+include(cmake_files/generic/detect_python.cmake)
 list(APPEND BUILD_ENV_VARIABLES PYTHON_COMMAND)
 
 ##
