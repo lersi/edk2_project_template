@@ -11,33 +11,7 @@ set(SHELL_EXECUTE_ARG "-c")
 ##
 # decide which tool chain to use
 ##
-if(NOT DEFINED TOOL_CHAIN)
-    # executing these commands in pipe will get darwin major version
-    execute_process(
-        COMMAND gcc --version
-        COMMAND head -n 1
-        COMMAND awk "{print $4}"
-        OUTPUT_VARIABLE GCC_VERSION
-    )
-
-    
-    if(${GCC_VERSION} VERSION_LESS 4.8)
-    # edk2 requires gcc 4.8 and later
-        message(FATAL_ERROR "EDK2 required gcc version of 4.8 or later")
-    elseif(${GCC_VERSION} VERSION_LESS 4.9)
-    # gcc is version 4.8.x
-        set(TOOL_CHAIN "GCC48" CACHE INTERNAL "")
-    elseif(${GCC_VERSION} VERSION_LESS 5.0)
-    # gcc is version 4.9.x
-        set(TOOL_CHAIN "GCC49" CACHE INTERNAL "")
-    else()
-    # gcc is version 5.0 or later
-        set(TOOL_CHAIN "GCC5" CACHE INTERNAL "")
-    endif()
-    
-endif()
-message(NOTICE "using toolchain: ${TOOL_CHAIN}")
-set(TARGET_TOOLS "${TOOL_CHAIN}")
+include(cmake_files/linux/detect_tool_chain.cmake)
 list(APPEND BUILD_ENV_VARIABLES TARGET_TOOLS)
 
 ##
@@ -65,46 +39,4 @@ include(cmake_files/unix/ensure_basetools.cmake)
 ##
 include(cmake_files/unix/select_edk_bin_dir.cmake)
 
-function(internal_add_package PKG_NAME BUILD_ARGS)
-    # list all files in our pkg
-    file(GLOB_RECURSE PKG_SOURCE_FILES
-        LIST_DIRECTORIES false
-        ${PACKAGE_DIR}/${PKG_NAME}/**
-    )
 
-    # generate build script
-    set(EXPORTED_ENV "")
-    foreach(var_name ${BUILD_ENV_VARIABLES})
-        set(var_value "${${var_name}}")
-        string(APPEND EXPORTED_ENV "\n" "export ${var_name}=\"${var_value}\"")
-    endforeach()
-    
-    string(JOIN "\n" script_content
-        "#!/bin/bash"
-        "${EXPORTED_ENV}"
-        "export PATH=${EDK_BIN_WRAPPERS}:$PATH"
-        "echo build $@"
-        "build $@"
-    )
-    set(SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${BUILD_SCRIP})
-    file(GENERATE OUTPUT ${SCRIPT_PATH}
-        CONTENT ${script_content}
-        FILE_PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        NEWLINE_STYLE UNIX
-    )
-
-    # create the target
-    add_custom_target(${PKG_NAME}
-        ${SCRIPT_PATH} ${BUILD_ARGS} 
-        SOURCES ${PKG_SOURCE_FILES}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
-        USES_TERMINAL
-    )
-endfunction()
-
-function(add_package PKG_NAME BUILD_ARGS)
-    set(BUILD_LIST "")
-    list(APPEND BUILD_LIST ${BUILD_ARGS})
-    list(APPEND BUILD_LIST ${ARGN})
-    internal_add_package(${PKG_NAME} "${BUILD_LIST}")
-endfunction()

@@ -26,6 +26,7 @@ if(NOT DEFINED PYTHON_COMMAND)
             COMMAND ${_command} --version
             RESULT_VARIABLE result
             OUTPUT_VARIABLE output
+            ERROR_QUIET
         )
         if(result EQUAL 0 AND NOT "${output}" STREQUAL "")
         # the python command has executed successfuly (it exits)

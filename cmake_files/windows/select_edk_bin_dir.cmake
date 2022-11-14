@@ -15,6 +15,7 @@ check_required_variables_defined("${_must_be_defined}") #note the argument must 
 unset(_must_be_defined) # make sure does not leaks to other files
 
 if(NOT DEFINED EDK_BIN_WRAPPERS)
+    set_variable_to_native_path(EDK_TOOLS_PATH)
     execute_process(
         COMMAND ${PYTHON_COMMAND} -c "import edk2basetools" 
         RESULT_VARIABLE python_result
@@ -22,8 +23,8 @@ if(NOT DEFINED EDK_BIN_WRAPPERS)
         ERROR_QUIET
     )
     if(${python_result} EQUAL 0)
-        set(EDK_BIN_WRAPPERS ${EDK_TOOLS_PATH}/BinPipWrappers/PosixLike CACHE INTERNAL "")
+        set(EDK_BIN_WRAPPERS "${EDK_TOOLS_PATH}\\BinPipWrappers\\WindowsLike" CACHE INTERNAL "")
     else()
-        set(EDK_BIN_WRAPPERS ${EDK_TOOLS_PATH}/BinWrappers/PosixLike CACHE INTERNAL "")
+        set(EDK_BIN_WRAPPERS "${EDK_TOOLS_PATH}\\BinWrappers\\WindowsLike" CACHE INTERNAL "")
     endif()
 endif()

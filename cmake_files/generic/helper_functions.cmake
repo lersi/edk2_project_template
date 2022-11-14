@@ -11,5 +11,10 @@ function(check_required_variables_defined variables)
     endforeach()
 endfunction()
 
+function(set_variable_to_native_path var_name)
+    cmake_path(CONVERT "${${var_name}}" TO_NATIVE_PATH_LIST result NORMALIZE)
+    set(${var_name} ${result} PARENT_SCOPE)
+endfunction()
+
 
 endif() # no code after this line

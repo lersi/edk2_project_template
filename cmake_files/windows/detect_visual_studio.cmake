@@ -1,5 +1,5 @@
 ####
-# description: detects visual studio location, version and devenvironment.
+# description: detects visual studio location, version and dev environment.
 # author: Lior Shalmay
 ####
 

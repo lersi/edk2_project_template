@@ -12,16 +12,13 @@ set(DEFAULT_CLANG_PATH "C:\\Program Files\\LLVM\\bin")
 ##
 # Helper functions
 ##
-function(_set_variable_to_native_path var_name)
-    cmake_path(CONVERT "${${var_name}}" TO_NATIVE_PATH_LIST result NORMALIZE)
-    set(${var_name} ${result} PARENT_SCOPE)
-endfunction()
+include(cmake_files/generic/helper_functions.cmake)
 
 ##
 # set esential data
 ##
 set(EDK_TOOLS_PATH ${EDK2_SOURCE}/BaseTools)
-_set_variable_to_native_path(EDK_TOOLS_PATH)
+set_variable_to_native_path(EDK_TOOLS_PATH)
 set(BASE_TOOLS_PATH ${EDK_TOOLS_PATH})
 set(WORKSPACE_TOOLS_PATH ${EDK_TOOLS_PATH})
 set(BASETOOLS_PYTHON_SOURCE ${BASE_TOOLS_PATH}\\Source\\Python)
@@ -40,50 +37,12 @@ list(APPEND BUILD_ENV_VARIABLES PYTHON_COMMAND)
 # detects vs environment configuration script and the tool chain tag
 include(cmake_files/windows/detect_visual_studio.cmake)
 set(TOOL_CHAIN ${_VS_TAG})
-
 message(NOTICE "using toolchain: ${TOOL_CHAIN}")
 
 ##
 # find nasm
 ##
-if(DEFINED NASM_PATH)
-    # sanity check
-    if(NOT EXISTS ${NASM_PATH})
-        message(ERROR "the path provided by `NASM_PATH` does not exist!")
-    endif()
-    # make sure that the path ends with a backslash
-    cmake_path(CONVERT ${NASM_PATH} TO_NATIVE_PATH_LIST NASM_PATH NORMALIZE)
-    string(REGEX MATCH ".$" last_char ${NASM_PATH})
-    if(NOT last_char STREQUAL "\\")
-        set(NASM_PATH ${NASM_PATH}\\)
-    endif()
-    set(NASM_PREFIX ${NASM_PATH} CACHE INTERNAL "path to nasm insall dir" FORCE)
-elseif(NOT DEFINED NASM_PREFIX)
-    # setting up for the first time
-    set(default_nasm_exec "${DEFAULT_NASM_PATH}\\nasm.exe")
-    # check for default location first
-    if(EXISTS ${default_nasm_exec})
-        set(NASM_PREFIX ${DEFAULT_NASM_PATH}\\ CACHE INTERNAL "path to nasm insall dir" FORCE)
-    else()
-    # try to find nasm from path
-        execute_process(
-            COMMAND cmd /C where nasm
-            OUTPUT_VARIABLE output
-            # ERROR_QUIET
-            ECHO_OUTPUT_VARIABLE
-            RESULT_VARIABLE run_result
-            COMMAND_ECHO STDOUT
-        )
-        if(${run_result} EQUAL 0)
-            # found nasm
-            string(STRIP ${output} nasm_cmd_path)
-            get_filename_component(nasm_path ${nasm_cmd_path} DIRECTORY)
-            set(NASM_PREFIX ${nasm_path}\\ CACHE INTERNAL "path to nasm insall dir" FORCE)
-        else()
-            message(WARNING "cound not find nasm, components that uses nasm will fail to compile\nyou can specify nasm's directory by setting `NASM_PATH`")
-        endif()
-    endif()
-endif()
+include(cmake_files/windows/detect_nasm.cmake)
 if(DEFINED NASM_PREFIX)
     list(APPEND BUILD_ENV_VARIABLES NASM_PREFIX)
 endif()
@@ -91,36 +50,7 @@ endif()
 ##
 # find clang
 ##
-if(DEFINED CLANG_BIN_PATH)
-    # sanity check
-    if(NOT EXISTS ${CLANG_BIN_PATH})
-        message(ERROR "the path provided by `CLANG_BIN_PATH` does not exist!")
-    endif()
-    cmake_path(CONVERT ${CLANG_BIN_PATH} TO_NATIVE_PATH_LIST CLANG_BIN_PATH NORMALIZE)
-    set(CLANG_BIN ${CLANG_BIN_PATH} CACHE INTERNAL "path to clang's bin dir" FORCE)
-elseif(NOT DEFINED CLANG_BIN)
-    set(default_clang_exec ${DEFAULT_CLANG_PATH}\\clang.exe)
-    # check default path first
-    if(EXISTS ${default_clang_exec})
-        set(CLANG_BIN ${DEFAULT_CLANG_PATH} CACHE INTERNAL "path to clang's bin dir" FORCE)
-    else()
-        # try to get clang from path
-        execute_process( # use vs enviroment script, to look also for visual studio's clang
-            COMMAND cmd /C "${VS_ENVIRONMENT_SCRIPT}" && where clang
-            OUTPUT_VARIABLE output
-            RESULT_VARIABLE result
-            ERROR_QUIET
-        )
-        if(${result} EQUAL 0)
-            string(REGEX MATCH "C:\\\\[A-Z,a-z, ,\\\\,\\(,\\),_,0-9,\\.]*\\.exe" clang_cmd_path ${output})
-            string(STRIP ${clang_cmd_path} clang_cmd_path)
-            get_filename_component(clang_path ${clang_cmd_path} DIRECTORY)
-            set(CLANG_BIN ${clang_path} CACHE INTERNAL "path to clang's bin dir" FORCE)
-        else()
-            message(WARNING "could not find clang, components that uses clang will fail to compile\nyou can specify clang's binary directory by setting `CLANG_BIN_PATH`")
-        endif()
-    endif()
-endif()
+include(cmake_files/windows/detect_clang.cmake)
 if(DEFINED CLANG_BIN)
     list(APPEND BUILD_ENV_VARIABLES CLANG_BIN)
 endif()
@@ -130,78 +60,18 @@ endif()
 ##
 set(CONF_PATH ${CMAKE_BINARY_DIR}\\conf CACHE PATH "where to save configuration for EDK build tools")
 list(APPEND BUILD_ENV_VARIABLES CONF_PATH)
-
-if((NOT EXISTS ${CONF_PATH}) OR (NOT EXISTS ${CONF_PATH}/tools_def.txt))
-    make_directory(${CONF_PATH})
-    set(ENV{RECONFIG} "TRUE")
-    foreach(var_name ${BUILD_ENV_VARIABLES})
-        _set_variable_to_native_path(${var_name})
-        set(ENV{${var_name}} "${${var_name}}")
-        message(NOTICE "${var_name} = ${${var_name}}")
-    endforeach()
-
-    message("configuration does not exist, generating it")
-    execute_process(
-        COMMAND  "${EDK_TOOLS_PATH}\\toolsetup.bat" Reconfig ${TOOL_CHAIN}
-        OUTPUT_VARIABLE conf_result
-        ERROR_VARIABLE conf_error
-        ECHO_OUTPUT_VARIABLE
-        ECHO_ERROR_VARIABLE
-        COMMAND_ERROR_IS_FATAL ANY
-        COMMAND_ECHO STDOUT
-    )
-endif()
+include(cmake_files/windows/configure_build_system.cmake)
 
 ##
 # make sure base tools is compiled
 ##
-set(BASE_TOOLS_ARTIFACTS ${EDK_TOOLS_PATH}\\Bin\\Win32)
-if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
-    foreach(var_name ${BUILD_ENV_VARIABLES})
-        _set_variable_to_native_path(${var_name})
-        set(ENV{${var_name}} "${${var_name}}")
-        message(NOTICE "${var_name} = ${${var_name}}")
-    endforeach()
-
-    # set(ENV{PYTHON_COMMAND} ${PYTHON_COMMAND})
-    message(NOTICE "building base tools...")
-    set(ENV{PATH} "${BASE_TOOLS_ARTIFACTS};$ENV{PATH}")
-    string(CONCAT build_tools_cmd "cmd /C \"${VS_ENVIRONMENT_SCRIPT}\""
-        " && ${EDK_TOOLS_PATH}\\toolsetup.bat ForceRebuild ${TOOL_CHAIN}"
-    )
-    separate_arguments(build_tools_cmd WINDOWS_COMMAND ${build_tools_cmd})
-    execute_process(
-        # COMMAND "${EDK_TOOLS_PATH}\\toolsetup.bat" ForceRebuild ${TOOL_CHAIN}
-        COMMAND ${build_tools_cmd}
-        RESULT_VARIABLE build_result
-        COMMAND_ECHO STDOUT
-    )
-    # if the artifacts still does not exist, then the build must have failed
-    if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
-        message(FATAL_ERROR "base tools build failed!")
-    endif()
-endif()
-set(EDK_TOOLS_BIN ${BASE_TOOLS_ARTIFACTS})
-_set_variable_to_native_path(EDK_TOOLS_BIN)
+include(cmake_files/windows/ensure_base_tools.cmake)
 list(APPEND BUILD_ENV_VARIABLES EDK_TOOLS_BIN)
 
 ##
 # check which bin dir to use
 ##
-if(NOT DEFINED EDK_BIN_WRAPPERS)
-    _set_variable_to_native_path(EDK_TOOLS_PATH)
-    execute_process(
-        COMMAND ${PYTHON_COMMAND} -c "import edk2basetools" 
-        RESULT_VARIABLE python_result
-        OUTPUT_QUIET
-        ERROR_QUIET
-    )
-    if(${python_result} EQUAL 0)
-        set(EDK_BIN_WRAPPERS "${EDK_TOOLS_PATH}\\BinPipWrappers\\WindowsLike" CACHE INTERNAL "")
-    else()
-        set(EDK_BIN_WRAPPERS "${EDK_TOOLS_PATH}\\BinWrappers\\WindowsLike" CACHE INTERNAL "")
-    endif()
-endif()
+include(cmake_files/windows/select_edk_bin_dir.cmake)
 
 ##
 # description: this function creates a Cmake target for a package.
@@ -220,7 +90,7 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
     set(EXPORTED_ENV "")
     foreach(var_name ${BUILD_ENV_VARIABLES})
         set(var_value "${${var_name}}")
-        _set_variable_to_native_path(var_value)
+        set_variable_to_native_path(var_value)
         string(FIND "${var_value}" " " has_space)
         if(${has_space} GREATER_EQUAL 0)
             string(APPEND EXPORTED_ENV "\n" "set ${var_name}=\"${var_value}\"")
