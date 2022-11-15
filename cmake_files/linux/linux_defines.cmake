@@ -39,4 +39,7 @@ include(cmake_files/unix/ensure_basetools.cmake)
 ##
 include(cmake_files/unix/select_edk_bin_dir.cmake)
 
-
+##
+# define interface functions for the build abi
+##
+include(cmake_files/unix/build_abi.cmake) 

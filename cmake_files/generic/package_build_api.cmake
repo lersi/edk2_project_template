@@ -8,20 +8,7 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
         ${PACKAGE_DIR}/${PKG_NAME}/**
     )
 
-    # generate build script
-    set(EXPORTED_ENV "")
-    foreach(var_name ${BUILD_ENV_VARIABLES})
-        set(var_value "${${var_name}}")
-        string(APPEND EXPORTED_ENV "\n" "export ${var_name}=\"${var_value}\"")
-    endforeach()
-    
-    string(JOIN "\n" script_content
-        "#!${SHELL_CMD}"
-        "${EXPORTED_ENV}"
-        "export PATH=${EDK_BIN_WRAPPERS}:$PATH"
-        "echo build $@"
-        "build $@"
-    )
+    generate_build_script(script_content)
     set(SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${BUILD_SCRIP})
     file(GENERATE OUTPUT ${SCRIPT_PATH}
         CONTENT ${script_content}

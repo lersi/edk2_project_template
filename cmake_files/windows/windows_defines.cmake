@@ -74,63 +74,6 @@ list(APPEND BUILD_ENV_VARIABLES EDK_TOOLS_BIN)
 include(cmake_files/windows/select_edk_bin_dir.cmake)
 
 ##
-# description: this function creates a Cmake target for a package.
-# 
-# arg1: PKG_NAME  the name of the package to create a target for
-# arg2: BUILD_ARGS  list of argument to pass to edk's build system
+# define interface functions for the build abi
 ##
-function(internal_add_package PKG_NAME BUILD_ARGS)
-    # list all files in our pkg
-    file(GLOB_RECURSE PKG_SOURCE_FILES
-        LIST_DIRECTORIES false
-        ${PACKAGE_DIR}/${PKG_NAME}/**
-    )
-
-    # generate build script
-    set(EXPORTED_ENV "")
-    foreach(var_name ${BUILD_ENV_VARIABLES})
-        set(var_value "${${var_name}}")
-        set_variable_to_native_path(var_value)
-        string(FIND "${var_value}" " " has_space)
-        if(${has_space} GREATER_EQUAL 0)
-            string(APPEND EXPORTED_ENV "\n" "set ${var_name}=\"${var_value}\"")
-        else()
-            string(APPEND EXPORTED_ENV "\n" "set ${var_name}=${var_value}")
-        endif()
-    endforeach()
-    
-    string(JOIN "\n" script_content
-        "@echo off"
-        "set PYTHONHASHSEED=1"
-        "@set CLANG_HOST_BIN=n"
-        # "if not defined DevEnvDir ("
-        "call \"${VS_ENVIRONMENT_SCRIPT}\""
-        # ")"
-        "call \"${BASE_TOOLS_PATH}\\set_vsprefix_envs.bat\""
-        "${EXPORTED_ENV}"
-        "set PATH=${EDK_TOOLS_BIN};${EDK_BIN_WRAPPERS};\%PATH\%"
-        "set PYTHONPATH=${BASETOOLS_PYTHON_SOURCE};%PYTHONPATH%"
-        "echo build \%*"
-        "build \%*"
-    )
-    set(SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${BUILD_SCRIPT})
-    file(GENERATE OUTPUT ${SCRIPT_PATH}
-        CONTENT "${script_content}"
-        FILE_PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        NEWLINE_STYLE WIN32
-    )
-    # create the target
-    add_custom_target(${PKG_NAME}
-        ${SCRIPT_PATH} ${BUILD_ARGS} 
-        SOURCES ${PKG_SOURCE_FILES}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
-        USES_TERMINAL
-    )
-endfunction()
-
-function(add_package PKG_NAME BUILD_ARGS)
-    set(BUILD_LIST "")
-    list(APPEND BUILD_LIST ${BUILD_ARGS})
-    list(APPEND BUILD_LIST ${ARGN})
-    internal_add_package(${PKG_NAME} "${BUILD_LIST}")
-endfunction()
+include(cmake_files/windows/build_abi.cmake) 
