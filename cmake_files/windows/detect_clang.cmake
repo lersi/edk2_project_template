@@ -23,7 +23,7 @@ unset(_must_be_defined) # make sure does not leaks to other files
 if(DEFINED CLANG_BIN_PATH)
     # sanity check
     if(NOT EXISTS ${CLANG_BIN_PATH})
-        message(ERROR "the path provided by `CLANG_BIN_PATH` does not exist!")
+        message(SEND_ERROR "the path provided by `CLANG_BIN_PATH` does not exist!")
     endif()
     cmake_path(CONVERT ${CLANG_BIN_PATH} TO_NATIVE_PATH_LIST CLANG_BIN_PATH NORMALIZE)
     set(CLANG_BIN ${CLANG_BIN_PATH} CACHE INTERNAL "path to clang's bin dir" FORCE)

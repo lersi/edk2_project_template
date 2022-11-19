@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 # Globals
 ##
 set(BUILD_ENV_VARIABLES PACKAGES_PATH)
-set(BUILD_SCRIP _build.sh)
+set(BUILD_SCRIPT _build.sh)
 string(JOIN ":" PACKAGES_PATH ${PACKAGES_PATH})
 set(SHELL_CMD "/bin/bash")
 set(SHELL_EXECUTE_ARG "-c")

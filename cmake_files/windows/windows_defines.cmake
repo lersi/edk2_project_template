@@ -7,7 +7,8 @@ set(BUILD_ENV_VARIABLES PACKAGES_PATH) # list containing all enviroment variable
 string(JOIN ";" PACKAGES_PATH ${PACKAGES_PATH})
 set(DEFAULT_NASM_PATH "C:\\nasm")
 set(DEFAULT_CLANG_PATH "C:\\Program Files\\LLVM\\bin")
-
+set(SHELL_CMD "cmd")
+set(SHELL_EXECUTE_ARG "/C")
 
 ##
 # Helper functions

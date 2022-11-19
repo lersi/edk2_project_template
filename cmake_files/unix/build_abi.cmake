@@ -1,3 +1,4 @@
+SET(NEWLINE_STYLE "UNIX")
 
 function(generate_build_script CONTENT_VAR)
     # export the configuration variables

@@ -23,7 +23,7 @@ unset(_must_be_defined) # make sure does not leaks to other files
 if(DEFINED NASM_PATH)
     # sanity check
     if(NOT EXISTS ${NASM_PATH})
-        message(ERROR "the path provided by `NASM_PATH` does not exist!")
+        message(SEND_ERROR "the path provided by `NASM_PATH` does not exist!")
     endif()
     # make sure that the path ends with a backslash
     set_variable_to_native_path(NASM_PATH)

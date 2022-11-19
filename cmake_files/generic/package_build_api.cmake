@@ -1,5 +1,5 @@
 #brief: defines all helper functions for creating a build target for a package 
-
+include(cmake_files/generic/helper_functions.cmake)
 
 function(internal_add_package PKG_NAME BUILD_ARGS)
     # list all files in our pkg
@@ -9,13 +9,14 @@ function(internal_add_package PKG_NAME BUILD_ARGS)
     )
 
     generate_build_script(script_content)
-    set(SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${BUILD_SCRIP})
+    set(SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${BUILD_SCRIPT})
+    set_variable_to_native_path(SCRIPT_PATH)
     file(GENERATE OUTPUT ${SCRIPT_PATH}
-        CONTENT ${script_content}
+        CONTENT "${script_content}"
         FILE_PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        NEWLINE_STYLE UNIX
+        NEWLINE_STYLE ${NEWLINE_STYLE}
     )
-
+    message("build cmd: ${SCRIPT_PATH} ${BUILD_ARGS}")
     # create the target
     add_custom_target(${PKG_NAME}
         ${SCRIPT_PATH} ${BUILD_ARGS} 

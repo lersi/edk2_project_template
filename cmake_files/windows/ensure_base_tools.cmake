@@ -11,7 +11,7 @@
 #     EDK_TOOLS_BIN - path to base tools binaries
 
 set(_must_be_defined
-    SHELL_COMMAND
+    SHELL_CMD
     SHELL_EXECUTE_ARG
     EDK_TOOLS_PATH
     PYTHON_COMMAND
@@ -33,7 +33,7 @@ if(NOT EXISTS ${BASE_TOOLS_ARTIFACTS})
 
     message(NOTICE "building base tools...")
     set(ENV{PATH} "${BASE_TOOLS_ARTIFACTS};$ENV{PATH}") # some build steps relay on the artifacts of the previous steps, so add base tools bin dir to path
-    string(CONCAT build_tools_cmd "${SHELL_COMMAND} ${SHELL_EXECUTE_ARG} \"${VS_ENVIRONMENT_SCRIPT}\""
+    string(CONCAT build_tools_cmd "${SHELL_CMD} ${SHELL_EXECUTE_ARG} \"${VS_ENVIRONMENT_SCRIPT}\""
         " && ${EDK_TOOLS_PATH}\\toolsetup.bat ForceRebuild ${TOOL_CHAIN}"
     )
     separate_arguments(build_tools_cmd WINDOWS_COMMAND ${build_tools_cmd})

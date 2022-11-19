@@ -1,3 +1,4 @@
+set(NEWLINE_STYLE "WIN32")
 
 function(generate_build_script CONTENT_VAR)
     # export the configuration variables
