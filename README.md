@@ -108,18 +108,26 @@ editing the following variables will change the build system behavior.
 
 | Variable              | Type              |  Description                           |
 | --------------------- | ----------------- | -------------------------------------- |  
-| LOCAL_EDK2            | URL or LOCAL_PATH | a local path or an url to edk2 repo    |
+| LOCAL_EDK2            | URL or PATH       | a local path or an url to edk2 repo    |
 | EDK2_TAG              | string            | a tag name or commit or branch of edk2 |
 | VS_TAG                | string            | **WINDOWS_ONLY** <br/> version of visual studio to use. Format: `VS<year>` |
+| PYTHON_COMMAND        | string            | full path to python interperter or name of python command in path |
+| CORE_COUNT            | int (as a string) | the amount of treads to use in the build process |
+| CONF_PATH             | PATH              | a path to save edk's build configuration |
+| | | |
 
 
 you may want to look at the source of the variables for deeper look.
 | Variable                           | definition/use Location             |
 | ---------------------------------- | ----------------------------------- |
-| LOCAL_EDK2                         | `cmake_files/include_edk2.cmake`    |
-| EDK2_TAG                           | `cmake_files/include_edk2.cmake`    |
-| VS_VERSION                         | `cmake_files/windows_defines.cmake` |
-| TOOL_CHAIN (not user configurable) | `cmake_files/windows_defines.cmake` |
+| LOCAL_EDK2                         | `cmake_files/generic/include_edk2.cmake`    |
+| EDK2_TAG                           | `cmake_files/generic/include_edk2.cmake`    |
+| VS_TAG                             | `cmake_files/windows/detect_visual_studio.cmake` |
+| PYTHON_COMMAND                     | `cmake_files/generic/detect_python.cmake` |
+| CORE_COUNT                         | `cmake_files/generic/core_count.cmake` |
+| CONF_PATH                          | `cmake_files/unix/configure_build_system.cmake` OR `` |
+|                           | `` |
+|                           | `` |
 
 
 ## Brief Description of edk2 build system

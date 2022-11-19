@@ -1,4 +1,7 @@
 # brief: detects system's core count for ideal compilation
+# in variables: None
+# out variables:
+#     CORE_COUNT - CACHED  the amount of cores to be used in the build process
 
 if(NOT DEFINED CORE_COUNT)
     include(ProcessorCount)
