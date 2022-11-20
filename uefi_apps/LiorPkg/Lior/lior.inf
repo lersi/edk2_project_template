@@ -21,6 +21,9 @@
 [Packages] # list here the packeges that your module depends on
   MdePkg/MdePkg.dec
 
+[Packages.AARCH64]
+  ArmPkg/ArmPkg.dec
+
 ##
 [LibraryClasses] # list here the library classes that you want to use
   UefiBootServicesTableLib
@@ -28,3 +31,8 @@
   UefiApplicationEntryPoint
   UefiLib
   DebugLib
+
+[LibraryClasses.AARCH64]
+  StackCheckLib
+  ArmLib
+  CompilerIntrinsicsLib

@@ -48,6 +48,10 @@
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
   RegisterFilterLib|MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf
 
+[LibraryClasses.AARCH64]
+  StackCheckLib|MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
+  ArmLib|ArmPkg/Library/ArmLib/ArmBaseLib.inf
+  CompilerIntrinsicsLib|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
 
 ##PCDs sections are not specified.
 ##All PCDs value are from their Default value in DEC.
