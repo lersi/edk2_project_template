@@ -20,7 +20,8 @@ function(internal_add_package PKG_NAME ARCH BUILD_ARGS)
 
     set(SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${BUILD_SCRIPT})
     set_variable_to_native_path(SCRIPT_PATH)
-    if(NOT EXISTS ${SCRIPT_PATH})
+    if(NOT DEFINED ENV{BUILD_SCRIPT_GENERATED})
+        set(ENV{BUILD_SCRIPT_GENERATED} TRUE)
         generate_build_script(script_content)
         file(GENERATE OUTPUT ${SCRIPT_PATH}
             CONTENT "${script_content}"
