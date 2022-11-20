@@ -2,8 +2,7 @@
 include(cmake_files/generic/helper_functions.cmake)
 
 function(internal_add_general_target PKG_NAME CURRENT_TARGET)
-    if(NOT DEFINED ${PKG_NAME}_TARGET_EXISTS)
-        set(${PKG_NAME}_TARGET_EXISTS TRUE)
+    if(NOT TARGET ${PKG_NAME})
         add_custom_target(${PKG_NAME} echo)
     endif()
     add_dependencies(${PKG_NAME} ${CURRENT_TARGET})
