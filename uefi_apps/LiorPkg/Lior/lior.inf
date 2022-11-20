@@ -14,7 +14,8 @@
 # VALID_ARCHITECTURES = IA32 X64 IPF EBC
 #
 ##
-[Sources.X64] # list here source files for the X64 architecture
+# [Sources.X64] # list here source files for the X64 architecture
+[Sources] # list here source files for all architectures
   HelloWorld.c
 ##
 [Packages] # list here the packeges that your module depends on
