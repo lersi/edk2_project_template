@@ -18,14 +18,17 @@ function(internal_add_package PKG_NAME ARCH BUILD_ARGS)
     # add flag for the architecture to compile to
     list(APPEND BUILD_ARGS --arch=${ARCH})
 
-    generate_build_script(script_content)
     set(SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${BUILD_SCRIPT})
     set_variable_to_native_path(SCRIPT_PATH)
-    file(GENERATE OUTPUT ${SCRIPT_PATH}
-        CONTENT "${script_content}"
-        FILE_PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        NEWLINE_STYLE ${NEWLINE_STYLE}
-    )
+    if(NOT EXISTS ${SCRIPT_PATH} OR DEFINED REGENERATE_BUILD_SCRIPT)
+        generate_build_script(script_content)
+        file(GENERATE OUTPUT ${SCRIPT_PATH}
+            CONTENT "${script_content}"
+            FILE_PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+            NEWLINE_STYLE ${NEWLINE_STYLE}
+        )
+        unset(REGENERATE_BUILD_SCRIPT PARENT_SCOPE)
+    endif()
     message("build cmd: ${SCRIPT_PATH} ${BUILD_ARGS}")
     # create the target
     add_custom_target(${CURRENT_TARGET} ALL
