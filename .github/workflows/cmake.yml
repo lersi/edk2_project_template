@@ -52,11 +52,11 @@ jobs:
         git submodule update
 
     - name: Install dependencies
-      run: sudo apt install build-essential uuid-dev iasl git nasm  python-is-python3
+      run: sudo apt install build-essential uuid-dev iasl git nasm  python-is-python3 gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi gcc-aarch64-linux-gnu
 
     - name: Configure CMake
       # sets LOCAL_EDK2 to cached repo path, to make configuration faster
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLOCAL_EDK2=${{env.EDK2_PATH}} -DCORE_COUNT=7
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --target ${{env.BUILD_TARGET}}

@@ -1,8 +1,8 @@
 [Defines]
   INF_VERSION = 0x00010005
-  BASE_NAME   = LiorApp
+  BASE_NAME   = LiorDriver
   FILE_GUID   = 539b1c67-0fd1-307d-8437-601f66d0bf1a
-  MODULE_TYPE = UEFI_APPLICATION
+  MODULE_TYPE = UEFI_DRIVER
   ENTRY_POINT = lior_main
 
 #
@@ -23,9 +23,10 @@
   ArmPkg/ArmPkg.dec
 
 ##
-[LibraryClasses.common] # list here the library classes that you want to use
+[LibraryClasses] # list here the library classes that you want to use
   UefiBootServicesTableLib
   UefiLib
   DebugLib
-  UefiApplicationEntryPoint
+  UefiDriverEntryPoint
+
 

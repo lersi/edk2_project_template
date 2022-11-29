@@ -43,3 +43,14 @@ include(cmake_files/unix/select_edk_bin_dir.cmake)
 # define interface functions for the build abi
 ##
 include(cmake_files/unix/build_abi.cmake) 
+
+##
+# define architecture related staff
+##
+# arm 64
+set(AARCH64_PREFIX "aarch64-linux-gnu-" CACHE STRING "the prefix for gcc command for arm64 compilation")
+set("${TOOL_CHAIN}_AARCH64_PREFIX" ${AARCH64_PREFIX})
+# arm (32 bit)
+set(ARM_PREFIX "arm-linux-gnueabi-" CACHE STRING "the prefix for gcc command for arm compilation")
+set("${TOOL_CHAIN}_ARM_PREFIX" ${ARM_PREFIX})
+list(APPEND BUILD_ENV_VARIABLES "${TOOL_CHAIN}_AARCH64_PREFIX" "${TOOL_CHAIN}_ARM_PREFIX")
