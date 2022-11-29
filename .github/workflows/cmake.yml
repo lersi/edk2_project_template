@@ -52,7 +52,7 @@ jobs:
         git submodule update
 
     - name: Install dependencies
-      run: sudo apt install build-essential uuid-dev iasl git nasm  python-is-python3 gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
+      run: sudo apt install build-essential uuid-dev iasl git nasm  python-is-python3 gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi gcc-aarch64-linux-gnu
 
     - name: Configure CMake
       # sets LOCAL_EDK2 to cached repo path, to make configuration faster
